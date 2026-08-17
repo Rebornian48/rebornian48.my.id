@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Waktu, Cuaca & Adzan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <span class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </span>
+        <span class="brand-name">waktukita</span>
+        <span class="brand-chip">Live</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#waktu">Waktu</a></li>
+        <li><a href="#cuaca">Cuaca</a></li>
+        <li><a href="#adzan">Adzan</a></li>
+        <li><a href="#lokasi">Lokasi</a></li>
+      </ul>
+      <div class="nav-actions">
+        <div class="theme-toggle" role="group" aria-label="Ganti tema">
+          <button type="button" data-theme-btn="light" aria-pressed="true" aria-label="Tema terang" title="Terang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <button type="button" data-theme-btn="dark" aria-pressed="false" aria-label="Tema gelap" title="Gelap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+        <button type="button" class="cta" id="refreshBtn">Perbarui →</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shell">
+
+    <section class="hero" id="waktu">
+      <div class="hero-copy">
+        <span class="pill">
+          <span class="pulse-dot"></span> Realtime · Tanpa login
+        </span>
+        <h1 class="headline">
+          Waktu, cuaca & <span class="mark">adzan</span><br>
+          semua ada <span class="accent">di sini</span><span class="star">✦</span>
+        </h1>
+        <p class="lead">
+          Dashboard harian buat kamu — jam lokal, cuaca real-time,
+          jadwal adzan (Kemenag RI). <b>Gratis selamanya.</b>
+        </p>
+
+        <div class="clock-block">
+          <div class="clock-top">
+            <div class="clock-label">Waktu Lokal</div>
+            <div class="fmt-toggle" role="group" aria-label="Format jam">
+              <button type="button" data-fmt-btn="24" aria-pressed="true">24j</button>
+              <button type="button" data-fmt-btn="12" aria-pressed="false">12j</button>
+            </div>
+          </div>
+          <div class="clock" id="clock" aria-live="off">
+            <span id="hm">--:--</span><span class="sec" id="ss">--</span><span class="ap" id="ap" hidden></span>
+          </div>
+          <div class="date-line" id="dateLine">Memuat tanggal…</div>
+        </div>
+
+        <div class="chip-row">
+          <a class="chip" href="#cuaca">
+            <span class="chip-ic">☀</span>
+            <span><b>Cuaca</b><em>Open-Meteo</em></span>
+          </a>
+          <a class="chip" href="#adzan">
+            <span class="chip-ic">☾</span>
+            <span><b>Adzan</b><em>Kemenag RI</em></span>
+          </a>
+          <a class="chip-text" href="#lokasi">PANDUAN LOKASI →</a>
+          <a class="chip-text" href="#tools">LIHAT SEMUA →</a>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="year" id="year">
+      <header class="year-head">
+        <h2 class="year-title">Year <span class="grad">Progress</span> <span id="yearNum">—</span></h2>
+        <p class="year-sub">Terinspirasi dari <a href="https://yearsprogress.com" target="_blank" rel="noopener">yearsprogress.com</a></p>
+      </header>
+      <div class="year-big" id="yearPct">—</div>
+      <div class="year-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="year-bar-fill" id="yearBarFill"></div>
+      </div>
+      <div class="year-bar-labels">
+        <span>Jan 1</span>
+        <span id="yearEnd">Dec 31</span>
+      </div>
+      <p class="year-toward">Menuju Tahun Baru <b id="yearNext">—</b></p>
+
+      <div class="year-stats">
+        <div class="ystat">
+          <div class="ystat-lbl">Tahun baru jatuh pada</div>
+          <div class="ystat-val ystat-y" id="yNewDate">—</div>
+        </div>
+        <div class="ystat">
+          <div class="ystat-lbl">Progress tahun ini</div>
+          <div class="ystat-val ystat-g" id="yPct">—</div>
+        </div>
+        <div class="ystat">
+          <div class="ystat-lbl">Waktu yang telah berlalu</div>
+          <div class="ystat-val ystat-o" id="yPassed">— <em>hari</em></div>
+        </div>
+        <div class="ystat">
+          <div class="ystat-lbl">Sisa waktu tahun ini</div>
+          <div class="ystat-val ystat-p" id="yLeft">— <em>hari</em></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="tools">
+
+      <article class="card" id="cardWeather">
+        <header class="card-head">
+          <h2>Cuaca Saat Ini</h2>
+          <span class="tag tag-warm" id="cuaca">Live</span>
+        </header>
+        <div class="weather-main">
+          <div class="temp" id="wTemp">—</div>
+          <div class="cond" id="wCond">menunggu lokasi…</div>
+        </div>
+        <div class="weather-meta">
+          <div>Terasa <b id="wFeels">—</b></div>
+          <div>Kelembapan <b id="wHum">—</b></div>
+          <div>Angin <b id="wWind">—</b></div>
+          <div>Presipitasi <b id="wPrec">—</b></div>
+        </div>
+        <div class="status" id="wStatus"></div>
+      </article>
+
+      <article class="card" id="cardAdzan">
+        <header class="card-head">
+          <h2>Jadwal Adzan</h2>
+          <span class="tag tag-cool" id="adzan">Kemenag</span>
+        </header>
+        <div class="adzan-next">
+          <div>
+            <div class="lbl">Berikutnya</div>
+            <div class="name" id="adzanNextName">—</div>
+          </div>
+          <div class="cd" id="adzanCd">--:--:--</div>
+        </div>
+        <ul class="adzan-list" id="adzanList">
+          <li><span>Subuh</span><span class="time" data-adzan="Fajr">—</span></li>
+          <li><span>Terbit</span><span class="time" data-adzan="Sunrise">—</span></li>
+          <li><span>Dzuhur</span><span class="time" data-adzan="Dhuhr">—</span></li>
+          <li><span>Ashar</span><span class="time" data-adzan="Asr">—</span></li>
+          <li><span>Maghrib</span><span class="time" data-adzan="Maghrib">—</span></li>
+          <li><span>Isya</span><span class="time" data-adzan="Isha">—</span></li>
+        </ul>
+        <div class="status" id="aStatus"></div>
+      </article>
+
+      <article class="card" id="cardLoc">
+        <header class="card-head">
+          <h2>Lokasi Anda</h2>
+          <span class="tag" id="lokasi">GPS/IP</span>
+        </header>
+        <div>
+          <div class="loc-place" id="locPlace">Menunggu izin lokasi…</div>
+          <div class="loc-region" id="locRegion"></div>
+        </div>
+        <div class="coords">
+          <span>Lintang</span><b id="locLat">—</b>
+          <span>Bujur</span><b id="locLon">—</b>
+          <span>Akurasi</span><b id="locAcc">—</b>
+          <span>Zona</span><b id="locTz">—</b>
+        </div>
+        <div class="map" id="map" aria-label="Peta lokasi"></div>
+        <button type="button" class="refresh" id="refreshBtnCard">Perbarui lokasi</button>
+        <div class="status" id="lStatus"></div>
+      </article>
+
+    </section>
+
+    <footer class="meta">
+      <div>
+        Sumber:
+        <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> ·
+        <a href="https://aladhan.com/prayer-times-api" target="_blank" rel="noopener">Aladhan (Kemenag RI)</a> ·
+        <a href="https://www.bigdatacloud.com/geocoding-apis/free-reverse-geocode-to-city-api" target="_blank" rel="noopener">BigDataCloud</a>
+      </div>
+      <div id="lastUpdate">—</div>
+    </footer>
+
+  </main>
+
+  <script src="dashboard.js" defer></script>
+</body>
+</html>
