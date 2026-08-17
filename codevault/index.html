@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeVault — Snippet Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/brand.css">
+  <script>
+  (function(){
+    const s = localStorage.getItem('rebornian.theme');
+    const d = matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+  })();
+  </script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['JetBrains Mono', 'monospace'],
+            display: ['Syne', 'sans-serif'],
+          },
+          colors: {
+            bg: '#0d0f14',
+            surface: '#151820',
+            panel: '#1c2030',
+            border: '#252a3a',
+            accent: '#4ade80',
+            accent2: '#38bdf8',
+            muted: '#4a5270',
+            text: '#c9d1e9',
+          },
+          animation: {
+            'slide-in': 'slideIn 0.25s ease-out',
+            'fade-in': 'fadeIn 0.2s ease-out',
+          },
+          keyframes: {
+            slideIn: { from: { transform: 'translateY(-8px)', opacity: 0 }, to: { transform: 'translateY(0)', opacity: 1 } },
+            fadeIn: { from: { opacity: 0 }, to: { opacity: 1 } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { scrollbar-width: thin; scrollbar-color: #252a3a #0d0f14; }
+    body { background-color: #0d0f14; color: #c9d1e9; }
+    /* Light mode overrides */
+    [data-theme="light"] body { background-color: #f5f2ec !important; color: #14213d !important; }
+    [data-theme="light"] .bg-surface { background-color: #ffffff !important; }
+    [data-theme="light"] .bg-panel { background-color: #f6f2e9 !important; }
+    [data-theme="light"] .bg-bg { background-color: #f5f2ec !important; }
+    [data-theme="light"] .border-border { border-color: #e6dfce !important; }
+    [data-theme="light"] .text-white { color: #14213d !important; }
+    [data-theme="light"] .text-text { color: #14213d !important; }
+    [data-theme="light"] .text-muted { color: #6b6a5e !important; }
+    [data-theme="light"] header { background: #ffffffee !important; }
+    [data-theme="light"] pre { color: #14213d !important; background: #f6f2e9 !important; }
+    [data-theme="light"] .card-hover:hover { border-color: #ff3b6b55 !important; box-shadow: 0 0 0 1px #ff3b6b22, 0 4px 24px #14213d20 !important; }
+    [data-theme="light"] #view-lineno { background: #ede8d8 !important; color: #6b6a5e !important; }
+    /* Push header below fixed brand bar */
+    body header { top: auto !important; }
+    .card-hover { transition: border-color 0.2s, box-shadow 0.2s; }
+    .card-hover:hover { border-color: #4ade8055; box-shadow: 0 0 0 1px #4ade8022, 0 4px 24px #00000060; }
+    #code-input { font-family: 'JetBrains Mono', monospace; tab-size: 2; }
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .modal-backdrop { animation: fadeIn 0.15s ease-out; }
+    .modal-box { animation: slideIn 0.2s ease-out; }
+    pre { white-space: pre; word-break: normal; overflow-x: auto; }
+    #view-lineno { white-space: pre; }
+    .line-num { user-select: none; }
+    #toast { transition: opacity 0.3s, transform 0.3s; }
+  </style>
+</head>
+<body class="min-h-screen font-display">
+
+  <!-- Header -->
+  <header class="border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10" style="background:#0d0f14ee;backdrop-filter:blur(8px)">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-bg font-mono font-bold text-sm" style="background: linear-gradient(135deg,#4ade80,#38bdf8)">&lt;/&gt;</div>
+      <div>
+        <h1 class="text-lg font-extrabold tracking-tight text-white leading-none">CodeVault</h1>
+        <p class="text-xs text-muted font-mono leading-none mt-0.5">snippet manager</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-panel border border-border rounded-lg px-3 py-1.5">
+        <svg class="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input id="search-input" type="text" placeholder="Cari snippet..." class="bg-transparent text-sm font-mono text-text placeholder-muted outline-none w-40" />
+      </div>
+      <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-bg transition-all hover:scale-105 active:scale-95" style="background:linear-gradient(135deg,#4ade80,#22c55e)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+        Tambah
+      </button>
+    </div>
+  </header>
+
+  <!-- Stats Bar -->
+  <div class="border-b border-border px-6 py-2 flex items-center gap-6 font-mono text-xs text-muted">
+    <span><span id="stat-count" class="text-accent font-bold">0</span> snippet tersimpan</span>
+    <span class="text-border">|</span>
+    <span>disimpan di <span class="text-accent2">server JSON</span></span>
+    <span class="text-border">|</span>
+    <span id="stat-storage" class="text-text">0 B</span>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
+      <div class="text-6xl mb-4">📂</div>
+      <h2 class="text-xl font-bold text-text mb-2">Belum ada snippet</h2>
+      <p class="text-muted text-sm font-mono mb-6">Klik tombol <span class="text-accent">+ Tambah</span> untuk menyimpan snippet pertamamu.</p>
+    </div>
+
+    <!-- Grid -->
+    <div id="snippet-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+  </main>
+
+  <!-- Modal Tambah/Edit -->
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="modal-backdrop absolute inset-0 bg-black/70" id="modal-backdrop"></div>
+    <div class="modal-box relative w-full max-w-2xl bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h2 id="modal-title" class="font-extrabold text-lg text-white">Tambah Snippet</h2>
+        <button id="modal-close" class="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-white hover:bg-panel transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="px-6 py-5 space-y-4">
+        <input type="hidden" id="edit-id" />
+        <div>
+          <label class="block text-xs font-mono text-muted mb-1.5 uppercase tracking-widest">Nama Kode <span class="text-red-400">*</span></label>
+          <input id="inp-nama" type="text" placeholder="cth: fungsi-sorting-bubble" class="w-full bg-panel border border-border rounded-lg px-4 py-2.5 text-sm font-mono text-text placeholder-muted outline-none focus:border-accent transition-colors" />
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-muted mb-1.5 uppercase tracking-widest">Detail / Deskripsi <span class="text-red-400">*</span></label>
+          <input id="inp-detail" type="text" placeholder="cth: Implementasi bubble sort dalam JavaScript" class="w-full bg-panel border border-border rounded-lg px-4 py-2.5 text-sm font-mono text-text placeholder-muted outline-none focus:border-accent transition-colors" />
+        </div>
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="block text-xs font-mono text-muted mb-1.5 uppercase tracking-widest">Bahasa</label>
+            <select id="inp-lang" class="w-full bg-panel border border-border rounded-lg px-4 py-2.5 text-sm font-mono text-text outline-none focus:border-accent transition-colors">
+              <option value="">— pilih —</option>
+              <option>JavaScript</option><option>TypeScript</option><option>PHP</option>
+              <option>Python</option><option>HTML</option><option>CSS</option>
+              <option>SQL</option><option>Bash</option><option>JSON</option><option>Lainnya</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-mono text-muted mb-1.5 uppercase tracking-widest">Tag</label>
+            <input id="inp-tag" type="text" placeholder="cth: sorting, array" class="w-full bg-panel border border-border rounded-lg px-4 py-2.5 text-sm font-mono text-text placeholder-muted outline-none focus:border-accent transition-colors" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-muted mb-1.5 uppercase tracking-widest">Isi Kode <span class="text-red-400">*</span></label>
+          <textarea id="code-input" rows="10" placeholder="// Paste kode kamu di sini..." class="w-full bg-panel border border-border rounded-lg px-4 py-3 text-sm text-text placeholder-muted outline-none focus:border-accent transition-colors resize-y"></textarea>
+        </div>
+      </div>
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 border-t border-border flex items-center justify-between">
+        <button id="btn-clear" class="text-xs font-mono text-muted hover:text-red-400 transition-colors">Reset Form</button>
+        <div class="flex gap-3">
+          <button id="btn-cancel" class="px-4 py-2 rounded-lg text-sm font-semibold text-muted border border-border hover:border-text hover:text-text transition-all">Batal</button>
+          <button id="btn-save" class="px-5 py-2 rounded-lg text-sm font-bold text-bg transition-all hover:scale-105 active:scale-95" style="background:linear-gradient(135deg,#4ade80,#22c55e)">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Modal -->
+  <div id="view-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70" id="view-backdrop"></div>
+    <div class="relative w-full max-w-3xl bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden" style="max-height:90vh;display:flex;flex-direction:column">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
+        <div>
+          <h2 id="view-nama" class="font-extrabold text-lg text-white"></h2>
+          <p id="view-detail" class="text-xs font-mono text-muted mt-0.5"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="view-copy" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono border border-border text-muted hover:text-accent hover:border-accent transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Salin
+          </button>
+          <button id="view-close" class="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-white hover:bg-panel transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="overflow-auto flex-1">
+        <div class="flex">
+          <div id="view-lineno" class="flex-shrink-0 px-4 py-4 text-right font-mono text-xs text-muted border-r border-border select-none" style="min-width:3rem;background:#12151e;line-height:1.7"></div>
+          <pre id="view-code" class="flex-1 px-5 py-4 font-mono text-sm text-text leading-relaxed overflow-x-auto"></pre>
+        </div>
+      </div>
+      <div class="px-6 py-3 border-t border-border flex items-center gap-3 flex-shrink-0">
+        <span id="view-lang-badge" class="tag border" style="border-color:#38bdf855;color:#38bdf8;background:#38bdf810"></span>
+        <span id="view-tags" class="text-xs font-mono text-muted"></span>
+        <span class="ml-auto text-xs font-mono text-muted" id="view-date"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm -->
+  <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70"></div>
+    <div class="relative bg-surface border border-border rounded-2xl p-6 w-80 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4" style="background:#ef444420;border:1px solid #ef444450">
+        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </div>
+      <h3 class="font-bold text-white mb-1">Hapus Snippet?</h3>
+      <p class="text-sm text-muted font-mono mb-5">Aksi ini tidak dapat dibatalkan.</p>
+      <div class="flex gap-3">
+        <button id="del-cancel" class="flex-1 py-2 rounded-lg text-sm border border-border text-muted hover:text-text hover:border-text transition-all">Batal</button>
+        <button id="del-confirm" class="flex-1 py-2 rounded-lg text-sm font-bold text-white transition-all hover:scale-105" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-[100] flex items-center gap-3 px-4 py-3 rounded-xl border font-mono text-sm opacity-0 pointer-events-none" style="transform:translateY(8px)">
+    <span id="toast-icon"></span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <script>
+  $(function () {
+    const API = 'api.php';
+    let snippetCache = [];
+
+    /* ── API Calls ── */
+    function loadAndRender() {
+      $('#snippet-grid').html('<div class="col-span-3 text-center py-16 text-muted font-mono text-sm animate-pulse">Memuat snippet...</div>');
+      $.getJSON(API).done(function(data) {
+        snippetCache = data;
+        renderSnippets($('#search-input').val());
+      }).fail(function() {
+        $('#snippet-grid').html('<div class="col-span-3 text-center py-16 text-red-400 font-mono text-sm">Gagal memuat data dari server. Pastikan <code class=\'text-accent\'>api.php</code> ada di folder yang sama.</div>');
+        toast('Gagal menghubungi server.', 'error');
+      });
+    }
+
+    /* ── Toast ── */
+    let toastTimer;
+    function toast(msg, type = 'success') {
+      const $t = $('#toast');
+      const icons = { success: '✓', error: '✕', info: '→' };
+      const styles = {
+        success: 'border-[#4ade8050] bg-[#4ade8015] text-accent',
+        error:   'border-[#ef444450] bg-[#ef444415] text-red-400',
+        info:    'border-[#38bdf850] bg-[#38bdf815] text-accent2'
+      };
+      $t.removeClass('border-[#4ade8050] bg-[#4ade8015] text-accent border-[#ef444450] bg-[#ef444415] text-red-400 border-[#38bdf850] bg-[#38bdf815] text-accent2');
+      $t.addClass(styles[type]);
+      $('#toast-icon').text(icons[type]);
+      $('#toast-msg').text(msg);
+      $t.css({ opacity: 1, transform: 'translateY(0)', pointerEvents: 'auto' });
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $t.css({ opacity: 0, transform: 'translateY(8px)', pointerEvents: 'none' }), 2500);
+    }
+
+    /* ── Render Grid ── */
+    const LANG_COLORS = {
+      JavaScript: '#f7df1e', TypeScript: '#3178c6', PHP: '#8892be',
+      Python: '#4584b6', HTML: '#e34f26', CSS: '#264de4',
+      SQL: '#f29111', Bash: '#4eaa25', JSON: '#cbcb41', Lainnya: '#888'
+    };
+
+    function renderSnippets(filter = '') {
+      const data = snippetCache;
+      const q = filter.toLowerCase();
+      const filtered = q ? data.filter(s =>
+        s.nama.toLowerCase().includes(q) ||
+        s.detail.toLowerCase().includes(q) ||
+        (s.tag || '').toLowerCase().includes(q) ||
+        (s.lang || '').toLowerCase().includes(q)
+      ) : data;
+
+      const $grid = $('#snippet-grid').empty();
+      const $empty = $('#empty-state');
+
+      $('#stat-count').text(data.length);
+      const bytes = new Blob([JSON.stringify(data)]).size;
+      $('#stat-storage').text(bytes < 1024 ? bytes + ' B' : (bytes / 1024).toFixed(1) + ' KB');
+
+      if (!data.length) { $empty.removeClass('hidden').css('display', 'flex'); return; }
+      $empty.addClass('hidden');
+      if (!filtered.length) {
+        $grid.html('<div class="col-span-3 text-center py-16 text-muted font-mono text-sm">Tidak ada snippet yang cocok dengan "<span class="text-accent">' + $('<span>').text(filter).html() + '</span>"</div>');
+        return;
+      }
+
+      filtered.forEach(s => {
+        const color = LANG_COLORS[s.lang] || '#888';
+        const preview = (s.kode || '').split('\n').slice(0, 4).join('\n');
+        const date = s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '';
+        const tags = (s.tag || '').split(',').map(t => t.trim()).filter(Boolean);
+        const tagHtml = tags.map(t => `<span class="tag text-muted" style="background:#ffffff08;border:1px solid #ffffff15">${$('<span>').text(t).html()}</span>`).join(' ');
+
+        $grid.append(`
+          <div class="bg-surface border border-border rounded-xl overflow-hidden card-hover cursor-pointer group animate-fade-in" data-id="${s.id}">
+            <div class="px-4 pt-4 pb-3 border-b border-border flex items-start gap-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-white text-sm truncate">${$('<span>').text(s.nama).html()}</h3>
+                <p class="text-xs font-mono text-muted truncate mt-0.5">${$('<span>').text(s.detail).html()}</p>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="btn-edit w-7 h-7 flex items-center justify-center rounded-lg text-muted hover:text-accent2 hover:bg-panel transition-colors" data-id="${s.id}" title="Edit">
+                  <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                </button>
+                <button class="btn-del w-7 h-7 flex items-center justify-center rounded-lg text-muted hover:text-red-400 hover:bg-panel transition-colors" data-id="${s.id}" title="Hapus">
+                  <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+            <pre class="px-4 py-3 text-xs font-mono text-muted bg-panel overflow-hidden" style="max-height:90px;mask-image:linear-gradient(to bottom,#fff 60%,transparent)">${$('<span>').text(preview).html()}</pre>
+            <div class="px-4 py-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                ${s.lang ? `<span class="tag" style="background:${color}18;color:${color};border:1px solid ${color}40">${s.lang}</span>` : ''}
+                ${tagHtml}
+              </div>
+              <span class="text-[10px] font-mono text-muted flex-shrink-0">${date}</span>
+            </div>
+          </div>
+        `);
+      });
+    }
+
+    /* ── Open Modal ── */
+    function openModal(snippet = null) {
+      resetForm();
+      if (snippet) {
+        $('#modal-title').text('Edit Snippet');
+        $('#edit-id').val(snippet.id);
+        $('#inp-nama').val(snippet.nama);
+        $('#inp-detail').val(snippet.detail);
+        $('#inp-lang').val(snippet.lang || '');
+        $('#inp-tag').val(snippet.tag || '');
+        $('#code-input').val(snippet.kode || '');
+      } else {
+        $('#modal-title').text('Tambah Snippet');
+        $('#edit-id').val('');
+      }
+      $('#modal').removeClass('hidden');
+    }
+
+    function closeModal() { $('#modal').addClass('hidden'); }
+    function resetForm() {
+      $('#edit-id,#inp-nama,#inp-detail,#inp-tag,#code-input').val('');
+      $('#inp-lang').val('');
+    }
+
+    /* ── Save ── */
+    $('#btn-save').on('click', function () {
+      const nama   = $('#inp-nama').val().trim();
+      const detail = $('#inp-detail').val().trim();
+      const kode   = $('#code-input').val();
+      if (!nama || !detail || !kode) { toast('Nama, Detail, dan Isi Kode wajib diisi!', 'error'); return; }
+
+      const id      = $('#edit-id').val();
+      const payload = { nama, detail, kode, lang: $('#inp-lang').val(), tag: $('#inp-tag').val().trim() };
+      const $btn    = $('#btn-save').prop('disabled', true).text('Menyimpan...');
+
+      const req = id
+        ? $.ajax({ url: API + '?id=' + id, method: 'PUT',  contentType: 'application/json', data: JSON.stringify(payload) })
+        : $.ajax({ url: API,               method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+
+      req.done(function() {
+        toast(id ? 'Snippet diperbarui!' : 'Snippet ditambahkan!');
+        closeModal();
+        loadAndRender();
+      }).fail(function() {
+        toast('Gagal menyimpan. Cek koneksi ke server.', 'error');
+      }).always(function() {
+        $btn.prop('disabled', false).text('Simpan');
+      });
+    });
+
+    /* ── View Modal ── */
+    function openView(s) {
+      $('#view-nama').text(s.nama);
+      $('#view-detail').text(s.detail);
+      const lines = (s.kode || '').split('\n');
+      const lineNos = lines.map((_, i) => i + 1).join('\n');
+      $('#view-lineno').text(lineNos);
+      $('#view-code').text(s.kode || '');
+      const color = LANG_COLORS[s.lang] || '#888';
+      const $badge = $('#view-lang-badge');
+      if (s.lang) { $badge.text(s.lang).css({ color, background: color + '18', borderColor: color + '40' }).show(); }
+      else { $badge.hide(); }
+      const tags = (s.tag || '').split(',').map(t => t.trim()).filter(Boolean);
+      $('#view-tags').text(tags.map(t => '#' + t).join(' '));
+      $('#view-date').text(s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '');
+      $('#view-modal').removeClass('hidden');
+      $('#view-modal').data('kode', s.kode || '');
+    }
+
+    /* ── Delete ── */
+    let deleteTarget = null;
+    function confirmDelete(id) { deleteTarget = id; $('#delete-modal').removeClass('hidden'); }
+
+    $('#del-confirm').on('click', function () {
+      const $btn = $(this).prop('disabled', true).text('Menghapus...');
+      $.ajax({ url: API + '?id=' + deleteTarget, method: 'DELETE' })
+        .done(function() {
+          deleteTarget = null;
+          $('#delete-modal').addClass('hidden');
+          loadAndRender();
+          toast('Snippet dihapus.', 'info');
+        }).fail(function() {
+          toast('Gagal menghapus.', 'error');
+        }).always(function() {
+          $btn.prop('disabled', false).text('Hapus');
+        });
+    });
+    $('#del-cancel').on('click', () => { deleteTarget = null; $('#delete-modal').addClass('hidden'); });
+
+    /* ── Event Delegation ── */
+    $('#snippet-grid').on('click', '.btn-edit', function (e) {
+      e.stopPropagation();
+      const id = $(this).data('id');
+      const s  = snippetCache.find(x => x.id === id);
+      if (s) openModal(s);
+    });
+    $('#snippet-grid').on('click', '.btn-del', function (e) {
+      e.stopPropagation();
+      confirmDelete($(this).data('id'));
+    });
+    $('#snippet-grid').on('click', '[data-id]', function () {
+      const id = $(this).data('id');
+      const s  = snippetCache.find(x => x.id === id);
+      if (s) openView(s);
+    });
+
+    /* ── Copy ── */
+    $('#view-copy').on('click', function () {
+      const code = $('#view-modal').data('kode');
+      navigator.clipboard.writeText(code).then(() => toast('Kode disalin!', 'info')).catch(() => toast('Gagal menyalin.', 'error'));
+    });
+
+    /* ── UI Bindings ── */
+    $('#btn-add').on('click', () => openModal());
+    $('#modal-close, #btn-cancel').on('click', closeModal);
+    $('#modal-backdrop').on('click', closeModal);
+    $('#view-close, #view-backdrop').on('click', () => $('#view-modal').addClass('hidden'));
+    $('#btn-clear').on('click', resetForm);
+    $('#search-input').on('input', function () { renderSnippets($(this).val()); });
+
+    /* ── Tab key in textarea ── */
+    $('#code-input').on('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const s = this.selectionStart, end = this.selectionEnd;
+        this.value = this.value.substring(0, s) + '  ' + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = s + 2;
+      }
+    });
+
+    /* ── Keyboard shortcuts ── */
+    $(document).on('keydown', function (e) {
+      if (e.key === 'Escape') { closeModal(); $('#view-modal, #delete-modal').addClass('hidden'); }
+    });
+
+    /* ── Init ── */
+    loadAndRender();
+  });
+  </script>
+  <script src="/assets/brand.js" data-app="codevault" defer></script>
+</body>
+</html>

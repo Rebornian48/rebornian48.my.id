@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GeoCalc — Kalkulator Geometri</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/brand.css">
+<script>
+(function(){
+  const s = localStorage.getItem('rebornian.theme');
+  const d = matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+})();
+</script>
+<style>
+:root{
+  --bg:#f4efe6;--surface:#fffdf8;--surface2:#edeadf;
+  --border:#1a1a1a;--ink:#1a1a1a;--ink2:#6a6560;
+  --accent:#e85d26;--gold:#c9a84c;--teal:#3a9e9a;
+  --card-bg:#fffdf8;--input-bg:#f4efe6;
+  --result-bg:#1a1a1a;--result-fg:#f4efe6;
+  --formula-bg:#edeadf;
+  /* svg theme */
+  --sv-face1:#e85d26;--sv-face2:#c04d1e;--sv-face3:#f07842;
+  --sv-stroke:#1a1a1a;--sv-text:#1a1a1a;--sv-dim:#e85d26;
+  --sv-bg:rgba(232,93,38,.08);--sv-grid:#d4cfc7;
+}
+[data-theme="dark"]{
+  --bg:#0e0e14;--surface:#18181f;--surface2:#22222c;
+  --border:#3a3a48;--ink:#ece8df;--ink2:#8a8698;
+  --accent:#ff6b35;--gold:#e8c46a;--teal:#4bc8c4;
+  --card-bg:#1c1c25;--input-bg:#111118;
+  --result-bg:#08080e;--result-fg:#ece8df;
+  --formula-bg:#14141c;
+  --sv-face1:#ff6b35;--sv-face2:#c94a20;--sv-face3:#ff9060;
+  --sv-stroke:#ece8df;--sv-text:#ece8df;--sv-dim:#ff6b35;
+  --sv-bg:rgba(255,107,53,.08);--sv-grid:#2a2a38;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Syne',sans-serif;transition:background .4s,color .4s;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.3}
+
+/* HEADER */
+header{position:relative;z-index:20;background:var(--surface);border-bottom:2px solid var(--border);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;transition:background .4s,border-color .4s}
+.logo-box{width:40px;height:40px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .4s}
+.logo-box i{color:var(--accent);font-size:17px}
+.toggle-track{position:relative;width:54px;height:27px;background:var(--surface2);border:2px solid var(--border);border-radius:999px;cursor:pointer;transition:background .4s,border-color .4s;flex-shrink:0}
+.toggle-knob{position:absolute;top:3px;left:3px;width:17px;height:17px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--bg);transition:transform .4s cubic-bezier(.68,-.55,.27,1.55),background .4s,color .4s}
+[data-theme="dark"] .toggle-knob{transform:translateX(27px)}
+[data-theme="dark"] .toggle-track{background:var(--accent)}
+.tlabel{font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em;transition:color .4s}
+
+/* TABS */
+.tab-btn{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;border:2px solid var(--border);cursor:pointer;padding:10px 20px;background:transparent;color:var(--ink);transition:background .2s,color .2s,border-color .4s}
+.tab-btn.active{background:var(--ink);color:var(--bg)}
+.tab-btn:not(.active):hover{background:var(--surface2)}
+
+/* SHAPE CARDS */
+.scard{background:var(--card-bg);border:2px solid var(--border);padding:10px 6px;text-align:center;cursor:pointer;position:relative;transition:background .2s,border-color .4s,transform .18s}
+.scard::after{content:'';position:absolute;bottom:-4px;right:-4px;width:100%;height:100%;background:var(--border);z-index:-1;transition:background .4s}
+.scard:hover{transform:translate(-3px,-3px)}
+.scard.active{background:var(--ink);transform:translate(-3px,-3px)}
+.scard.active .si{color:var(--accent)!important}.scard.active .sn{color:var(--bg)}
+.si{font-size:18px;color:var(--ink);margin-bottom:5px;transition:color .4s}
+.sn{font-family:'Syne',sans-serif;font-weight:700;font-size:10px;color:var(--ink);line-height:1.3;transition:color .4s}
+
+/* SVG PREVIEW */
+.svg-preview{display:flex;justify-content:center;align-items:center;padding:10px;border:1.5px solid var(--border);background:var(--input-bg);margin-bottom:16px;min-height:170px;transition:background .4s,border-color .4s}
+.svg-preview svg{max-width:100%;height:auto}
+
+/* INPUTS */
+.calc-panel{background:var(--surface);border:2px solid var(--border);padding:20px;transition:background .4s,border-color .4s}
+.f-label{display:block;font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;transition:color .4s}
+.f-input{background:var(--input-bg);border:2px solid var(--border);padding:10px 13px;font-family:'Space Mono',monospace;font-size:14px;color:var(--ink);width:100%;outline:none;transition:background .2s,border-color .4s,color .4s,box-shadow .2s,transform .2s}
+.f-input:focus{background:var(--surface);box-shadow:4px 4px 0 var(--accent);transform:translate(-2px,-2px)}
+.f-input.err{border-color:#ef4444!important}
+.btn-calc{background:var(--accent);color:#fff;border:2px solid var(--border);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;letter-spacing:.06em;cursor:pointer;width:100%;padding:12px;position:relative;transition:transform .2s,border-color .4s}
+.btn-calc::after{content:'';position:absolute;bottom:-4px;right:-4px;width:100%;height:100%;background:var(--border);z-index:-1;transition:background .4s}
+.btn-calc:hover{transform:translate(-3px,-3px)}
+.btn-calc:active{transform:translate(0,0)}
+
+/* RESULTS */
+.res-panel{border:2px solid var(--border);overflow:hidden;transition:border-color .4s}
+.res-head{background:var(--result-bg);color:var(--result-fg);padding:12px 18px;display:flex;align-items:center;gap:8px;transition:background .4s,color .4s}
+.res-head i{color:var(--accent)}
+.res-body{background:var(--surface);padding:18px;min-height:190px;display:flex;flex-direction:column;justify-content:center;transition:background .4s}
+.res-card{border:2px solid var(--border);padding:12px 15px;margin-bottom:10px;transition:border-color .4s}
+.res-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.res-val{font-family:'Space Mono',monospace;font-size:1.8rem;font-weight:700;line-height:1.1}
+.res-unit{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink2)}
+.formula-box{border-top:2px solid var(--border);padding:12px 18px;background:var(--formula-bg);transition:background .4s,border-color .4s}
+
+.dim-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;letter-spacing:.08em}
+.empty-box{display:inline-block;border:2px solid var(--border);padding:30px 44px;background:var(--surface);position:relative;transition:background .4s,border-color .4s}
+.empty-box::before{content:'';position:absolute;top:-5px;left:-5px;width:13px;height:13px;background:var(--accent)}
+.empty-box::after{content:'';position:absolute;bottom:-5px;right:-5px;width:13px;height:13px;background:var(--gold)}
+.panel{display:none}.panel.active{display:block}
+.sec-lbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.2em;margin-bottom:13px;transition:color .4s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease forwards}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface2)}::-webkit-scrollbar-thumb{background:var(--border)}
+@media(max-width:640px){.calc-grid{grid-template-columns:1fr!important}}
+.p-icon{width:34px;height:34px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .4s}
+.p-icon i{color:var(--accent);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:11px">
+    <div class="logo-box"><i class="fa-solid fa-shapes"></i></div>
+    <div>
+      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:19px;color:var(--ink);letter-spacing:-.02em;line-height:1;transition:color .4s">GeoCalc</h1>
+      <p style="font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);transition:color .4s">Kalkulator Geometri</p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:13px">
+    <div style="display:flex;gap:5px;flex-shrink:0">
+      <span class="dim-tag" style="background:var(--gold);color:var(--bg)">2D</span>
+      <span class="dim-tag" style="background:var(--accent);color:#fff">3D</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;cursor:pointer" id="themeToggle">
+      <div class="toggle-track"><div class="toggle-knob"><i id="themeIcon" class="fa-solid fa-sun"></i></div></div>
+      <span class="tlabel" id="themeLabel">Light</span>
+    </div>
+  </div>
+</header>
+
+<main style="position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:26px 16px">
+  <div style="display:flex;gap:0;margin-bottom:24px">
+    <button class="tab-btn active" id="tab2d" onclick="switchDim('2d')"><i class="fa-regular fa-square" style="margin-right:6px"></i>2 DIMENSI</button>
+    <button class="tab-btn" id="tab3d" onclick="switchDim('3d')"><i class="fa-solid fa-cube" style="margin-right:6px"></i>3 DIMENSI</button>
+  </div>
+  <div id="panel2d" class="panel active">
+    <p class="sec-lbl">— Pilih Bentuk Geometri 2D</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:9px;margin-bottom:22px" id="shapes2d"></div>
+  </div>
+  <div id="panel3d" class="panel">
+    <p class="sec-lbl">— Pilih Bentuk Geometri 3D</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:9px;margin-bottom:22px" id="shapes3d"></div>
+  </div>
+  <div id="calcArea" style="display:none">
+    <div class="calc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="calc-panel">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">
+          <div class="p-icon"><i id="calcIcon" class="fa-solid fa-shapes"></i></div>
+          <div>
+            <h2 id="calcTitle" style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--ink);transition:color .4s">Pilih Bentuk</h2>
+            <p id="calcSub" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);transition:color .4s">Masukkan dimensi</p>
+          </div>
+        </div>
+        <div class="svg-preview" id="svgPreview"></div>
+        <div id="inputFields" style="display:flex;flex-direction:column;gap:9px;margin-bottom:15px"></div>
+        <button class="btn-calc" onclick="calculate()"><i class="fa-solid fa-calculator" style="margin-right:8px"></i>HITUNG SEKARANG</button>
+      </div>
+      <div class="res-panel">
+        <div class="res-head"><i class="fa-solid fa-chart-bar"></i><span style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em">HASIL PERHITUNGAN</span></div>
+        <div id="resultsContainer" class="res-body">
+          <div style="text-align:center;color:var(--ink2);padding:20px 0">
+            <i class="fa-regular fa-circle-question" style="font-size:36px;display:block;margin-bottom:10px;opacity:.25"></i>
+            <p style="font-family:'Space Mono',monospace;font-size:11px">Masukkan nilai &amp; tekan hitung</p>
+          </div>
+        </div>
+        <div class="formula-box">
+          <p style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink2);text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px">Rumus</p>
+          <div id="formulaContent" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--ink2)"><p>— Pilih bentuk terlebih dahulu</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="emptyState" style="text-align:center;padding:56px 0">
+    <div class="empty-box">
+      <i class="fa-solid fa-compass-drafting" style="font-size:44px;color:var(--ink);opacity:.18;display:block;margin-bottom:13px;transition:color .4s"></i>
+      <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--ink);margin-bottom:4px;transition:color .4s">Pilih Bentuk Geometri</p>
+      <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--ink2);transition:color .4s">Klik salah satu bentuk di atas untuk memulai</p>
+    </div>
+  </div>
+</main>
+
+<footer style="position:relative;z-index:10;border-top:2px solid var(--border);padding:12px 22px;text-align:center;transition:border-color .4s">
+  <p style="font-family:'Space Mono',monospace;font-size:10px;color:var(--ink2);transition:color .4s">GeoCalc © 2024 — Kalkulator Geometri 2D &amp; 3D</p>
+</footer>
+
+<script>
+const PI=Math.PI;
+
+/* ═══════════════════════════════════════════════
+   SVG ILLUSTRATIONS — each returns HTML string
+   Uses CSS vars for theming
+══════════════════════════════════════════════ */
+function svgWrap(content,vb='0 0 220 170'){
+  return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:240px;height:auto;display:block">
+    <defs>
+      <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="var(--sv-dim)"/>
+      </marker>
+      <marker id="arr2" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto">
+        <path d="M6,0 L0,3 L6,6 Z" fill="var(--sv-dim)"/>
+      </marker>
+    </defs>
+    ${content}
+  </svg>`;
+}
+
+function dimLine(x1,y1,x2,y2,label,lx,ly,dashed){
+  const dash=dashed?'stroke-dasharray="5,3"':'';
+  return `
+    <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--sv-dim)" stroke-width="1.2" ${dash} marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="${lx}" y="${ly}" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">${label}</text>`;
+}
+
+/* ── 2D SVGs ─────────────────────── */
+const svg2d = {
+  lingkaran: ()=>svgWrap(`
+    <circle cx="110" cy="88" r="65" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="110" y1="88" x2="175" y2="88" stroke="var(--sv-dim)" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <circle cx="110" cy="88" r="3.5" fill="var(--sv-face1)"/>
+    <text x="143" y="82" font-family="Space Mono,monospace" font-size="12" fill="var(--sv-dim)" font-weight="700">r</text>
+    <path d="M130,68 A30,30 0 0,1 162,88" fill="none" stroke="var(--sv-dim)" stroke-width="1.2"/>
+  `),
+  persegi: ()=>svgWrap(`
+    <rect x="42" y="22" width="136" height="136" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="42" y1="12" x2="178" y2="12" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="110" y="9" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">s</text>
+    <line x1="188" y1="22" x2="188" y2="158" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="200" y="92" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">s</text>
+    <rect x="42" y="22" width="12" height="12" fill="none" stroke="var(--sv-face1)" stroke-width="1.5"/>
+  `),
+  persegipanjang: ()=>svgWrap(`
+    <rect x="18" y="42" width="184" height="96" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="18" y1="30" x2="202" y2="30" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="110" y="27" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">p</text>
+    <line x1="210" y1="42" x2="210" y2="138" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="218" y="93" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">l</text>
+    <rect x="18" y="42" width="11" height="11" fill="none" stroke="var(--sv-face1)" stroke-width="1.5"/>
+  `),
+  segitiga: ()=>svgWrap(`
+    <polygon points="110,18 202,152 18,152" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="110" y1="18" x2="110" y2="152" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="120" y="96" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">t</text>
+    <line x1="18" y1="162" x2="202" y2="162" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="110" y="170" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">a</text>
+    <rect x="105" y="147" width="10" height="10" fill="none" stroke="var(--sv-dim)" stroke-width="1.2"/>
+  `,'0 0 220 178'),
+  trapesium: ()=>svgWrap(`
+    <polygon points="52,22 168,22 202,148 18,148" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="52" y1="10" x2="168" y2="10" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="110" y="8" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">b</text>
+    <line x1="18" y1="158" x2="202" y2="158" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="110" y="168" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">a</text>
+    <line x1="110" y1="22" x2="110" y2="148" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="116" y="92" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">t</text>
+  `,'0 0 220 178'),
+  jajarangenjang: ()=>svgWrap(`
+    <polygon points="52,22 202,22 168,148 18,148" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="18" y1="158" x2="168" y2="158" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="93" y="168" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" text-anchor="middle" font-weight="700">a</text>
+    <line x1="168" y1="22" x2="168" y2="148" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="178" y="90" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">t</text>
+    <text x="195" y="90" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">b</text>
+    <rect x="163" y="133" width="10" height="10" fill="none" stroke="var(--sv-dim)" stroke-width="1.2"/>
+  `,'0 0 220 178'),
+  belahketupat: ()=>svgWrap(`
+    <polygon points="110,10 202,88 110,166 18,88" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="18" y1="88" x2="202" y2="88" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <line x1="110" y1="10" x2="110" y2="166" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="160" y="84" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">d1</text>
+    <text x="115" y="50" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">d2</text>
+    <circle cx="110" cy="88" r="3.5" fill="var(--sv-face1)"/>
+    <rect x="105" y="83" width="10" height="10" fill="none" stroke="var(--sv-dim)" stroke-width="1.2"/>
+  `,'0 0 220 178'),
+  elips: ()=>svgWrap(`
+    <ellipse cx="110" cy="85" rx="92" ry="56" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="110" y1="85" x2="202" y2="85" stroke="var(--sv-dim)" stroke-width="1.4" stroke-dasharray="4,3"/>
+    <text x="158" y="80" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">a</text>
+    <line x1="110" y1="85" x2="110" y2="29" stroke="var(--sv-dim)" stroke-width="1.4" stroke-dasharray="4,3"/>
+    <text x="116" y="62" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">b</text>
+    <circle cx="110" cy="85" r="3.5" fill="var(--sv-face1)"/>
+  `),
+  segi5: ()=>svgWrap(`
+    <polygon points="110,12 199,77 167,162 53,162 21,77" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="110" y1="12" x2="199" y2="77" stroke="var(--sv-dim)" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+    <text x="163" y="42" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">s</text>
+  `,'0 0 220 178'),
+  segi6: ()=>svgWrap(`
+    <polygon points="110,12 188,54 188,126 110,158 32,126 32,54" fill="var(--sv-bg)" stroke="var(--sv-face1)" stroke-width="2.5"/>
+    <line x1="110" y1="12" x2="188" y2="54" stroke="var(--sv-dim)" stroke-width="1" stroke-dasharray="4,3" opacity=".5"/>
+    <text x="162" y="28" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">s</text>
+    <line x1="110" y1="85" x2="188" y2="85" stroke="var(--sv-dim)" stroke-width="1" stroke-dasharray="4,3" opacity=".4"/>
+  `,'0 0 220 170'),
+};
+
+/* ── 3D SVGs — isometric with gradients ─── */
+const svg3d = {
+  kubus: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="gTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face1)"/>
+      </linearGradient>
+      <linearGradient id="gLeft" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face2)"/><stop offset="100%" stop-color="var(--sv-face1)"/>
+      </linearGradient>
+      <linearGradient id="gRight" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face1)"/><stop offset="100%" stop-color="var(--sv-face2)"/>
+      </linearGradient>
+    </defs>
+    <!-- top face -->
+    <polygon points="110,18 188,60 110,102 32,60" fill="url(#gTop)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- left face -->
+    <polygon points="32,60 110,102 110,158 32,116" fill="url(#gLeft)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".85"/>
+    <!-- right face -->
+    <polygon points="110,102 188,60 188,116 110,158" fill="url(#gRight)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".7"/>
+    <!-- edge labels -->
+    <text x="59" y="82" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-text)" font-weight="700">s</text>
+    <text x="153" y="82" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-text)" font-weight="700">s</text>
+    <text x="106" y="145" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-text)" font-weight="700">s</text>
+  `),
+  balok: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="bTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face1)"/>
+      </linearGradient>
+    </defs>
+    <polygon points="32,55 142,18 210,55 100,92" fill="url(#bTop)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round"/>
+    <polygon points="32,55 100,92 100,152 32,115" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".85"/>
+    <polygon points="100,92 210,55 210,115 100,152" fill="var(--sv-face1)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".75"/>
+    <text x="76" y="52" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-text)" font-weight="700">p</text>
+    <text x="40" y="88" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-text)" font-weight="700">l</text>
+    <text x="173" y="88" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-text)" font-weight="700">t</text>
+  `),
+  bola: ()=>svgWrap(`
+    <defs>
+      <radialGradient id="sphG" cx="38%" cy="32%" r="65%">
+        <stop offset="0%" stop-color="var(--sv-face3)" stop-opacity="1"/>
+        <stop offset="55%" stop-color="var(--sv-face1)" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="var(--sv-face2)" stop-opacity=".95"/>
+      </radialGradient>
+    </defs>
+    <circle cx="110" cy="85" r="70" fill="url(#sphG)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <ellipse cx="110" cy="85" rx="70" ry="22" fill="none" stroke="var(--sv-stroke)" stroke-width="1.2" stroke-dasharray="6,4" opacity=".6"/>
+    <path d="M110,15 Q160,85 110,155" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".45"/>
+    <path d="M110,15 Q60,85 110,155" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".45"/>
+    <line x1="110" y1="85" x2="180" y2="85" stroke="var(--sv-text)" stroke-width="1.4" stroke-dasharray="4,3"/>
+    <text x="149" y="79" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">r</text>
+    <circle cx="110" cy="85" r="3" fill="var(--sv-dim)"/>
+  `),
+  silinder: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="cylG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face2)"/><stop offset="50%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face2)"/>
+      </linearGradient>
+      <linearGradient id="cylTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face1)"/>
+      </linearGradient>
+    </defs>
+    <!-- body -->
+    <rect x="44" y="42" width="132" height="106" fill="url(#cylG)" stroke="none"/>
+    <!-- outline -->
+    <line x1="44" y1="42" x2="44" y2="148" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <line x1="176" y1="42" x2="176" y2="148" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- bottom ellipse -->
+    <ellipse cx="110" cy="148" rx="66" ry="20" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- top ellipse -->
+    <ellipse cx="110" cy="42" rx="66" ry="20" fill="url(#cylTop)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- dimension: r -->
+    <line x1="110" y1="42" x2="176" y2="42" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="148" y="38" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">r</text>
+    <!-- dimension: t -->
+    <line x1="186" y1="42" x2="186" y2="148" stroke="var(--sv-dim)" stroke-width="1.2" marker-end="url(#arr)" marker-start="url(#arr2)"/>
+    <text x="197" y="100" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">t</text>
+  `),
+  kerucut: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="coneG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face2)"/><stop offset="50%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face2)"/>
+      </linearGradient>
+    </defs>
+    <polygon points="110,16 44,148 176,148" fill="url(#coneG)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round"/>
+    <ellipse cx="110" cy="148" rx="66" ry="18" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.8" opacity=".9"/>
+    <!-- height line -->
+    <line x1="110" y1="16" x2="110" y2="148" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="116" y="88" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">t</text>
+    <!-- radius line -->
+    <line x1="110" y1="148" x2="176" y2="148" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="148" y="143" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">r</text>
+    <!-- slant s -->
+    <line x1="110" y1="16" x2="176" y2="148" stroke="var(--sv-dim)" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/>
+    <text x="154" y="90" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" opacity=".7">s</text>
+  `,'0 0 220 170'),
+  limas: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="pyrF" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="var(--sv-face3)"/><stop offset="100%" stop-color="var(--sv-face1)"/>
+      </linearGradient>
+      <linearGradient id="pyrS" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face1)"/><stop offset="100%" stop-color="var(--sv-face2)"/>
+      </linearGradient>
+    </defs>
+    <!-- base -->
+    <polygon points="36,118 110,148 184,118 110,88" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".6"/>
+    <!-- left face -->
+    <polygon points="36,118 110,148 110,20" fill="url(#pyrF)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".9"/>
+    <!-- right face -->
+    <polygon points="110,148 184,118 110,20" fill="url(#pyrS)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".8"/>
+    <!-- back faces outline -->
+    <polygon points="36,118 110,88 110,20" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.5" stroke-linejoin="round" opacity=".35"/>
+    <!-- height -->
+    <line x1="110" y1="20" x2="110" y2="118" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="116" y="74" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">t</text>
+    <text x="60" y="108" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-text)" font-weight="700">p</text>
+    <text x="152" y="108" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-text)" font-weight="700">l</text>
+  `,'0 0 220 168'),
+  prisma: ()=>svgWrap(`
+    <defs>
+      <linearGradient id="prG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="var(--sv-face2)"/><stop offset="100%" stop-color="var(--sv-face3)"/>
+      </linearGradient>
+    </defs>
+    <!-- front triangle face -->
+    <polygon points="30,148 110,30 110,148" fill="url(#prG)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- back triangle -->
+    <polygon points="110,148 190,30 190,148" fill="var(--sv-face1)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".7"/>
+    <!-- top face -->
+    <polygon points="30,148 110,30 190,30 110,148" fill="var(--sv-face3)" stroke="var(--sv-stroke)" stroke-width="1.8" stroke-linejoin="round" opacity=".55"/>
+    <!-- wait, fix the geometry - triangular prism -->
+    <!-- bottom rect -->
+    <rect x="30" y="148" width="160" height="0" fill="none"/>
+    <line x1="30" y1="148" x2="190" y2="148" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- depth line -->
+    <text x="155" y="100" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-dim)" font-weight="700">p</text>
+    <text x="42" y="100" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-text)" font-weight="700">t</text>
+    <text x="60" y="163" font-family="Space Mono,monospace" font-size="9" fill="var(--sv-dim)" font-weight="700">a</text>
+  `,'0 0 220 168'),
+  setengahbola: ()=>svgWrap(`
+    <defs>
+      <radialGradient id="hspG" cx="38%" cy="28%" r="70%">
+        <stop offset="0%" stop-color="var(--sv-face3)"/>
+        <stop offset="100%" stop-color="var(--sv-face2)"/>
+      </radialGradient>
+    </defs>
+    <path d="M30,90 A80,80 0 0 1 190,90 Z" fill="url(#hspG)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <ellipse cx="110" cy="90" rx="80" ry="24" fill="var(--sv-face2)" stroke="var(--sv-stroke)" stroke-width="1.8" opacity=".85"/>
+    <path d="M110,10 Q150,90 110,90" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".4"/>
+    <path d="M110,10 Q70,90 110,90" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".4"/>
+    <line x1="110" y1="90" x2="190" y2="90" stroke="var(--sv-dim)" stroke-width="1.3" stroke-dasharray="4,3"/>
+    <text x="155" y="85" font-family="Space Mono,monospace" font-size="11" fill="var(--sv-dim)" font-weight="700">r</text>
+    <circle cx="110" cy="90" r="3" fill="var(--sv-dim)"/>
+  `),
+  torus: ()=>svgWrap(`
+    <defs>
+      <radialGradient id="torG" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
+        <stop offset="0%" stop-color="var(--sv-face3)"/>
+        <stop offset="100%" stop-color="var(--sv-face2)"/>
+      </radialGradient>
+    </defs>
+    <!-- outer ring -->
+    <ellipse cx="110" cy="85" rx="88" ry="52" fill="url(#torG)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- inner cutout -->
+    <ellipse cx="110" cy="85" rx="38" ry="22" fill="var(--sv-bg)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <!-- cross section hint -->
+    <ellipse cx="110" cy="85" rx="63" ry="37" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".3"/>
+    <!-- R label -->
+    <line x1="110" y1="85" x2="172" y2="85" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="143" y="80" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">R</text>
+    <!-- r label -->
+    <line x1="148" y1="85" x2="172" y2="85" stroke="var(--sv-dim)" stroke-width="2" opacity=".5"/>
+    <text x="168" y="98" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">r</text>
+  `),
+  elipsoid: ()=>svgWrap(`
+    <defs>
+      <radialGradient id="elG" cx="35%" cy="30%" r="68%">
+        <stop offset="0%" stop-color="var(--sv-face3)"/>
+        <stop offset="60%" stop-color="var(--sv-face1)"/>
+        <stop offset="100%" stop-color="var(--sv-face2)"/>
+      </radialGradient>
+    </defs>
+    <ellipse cx="110" cy="85" rx="98" ry="62" fill="url(#elG)" stroke="var(--sv-stroke)" stroke-width="1.8"/>
+    <ellipse cx="110" cy="85" rx="98" ry="28" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="6,4" opacity=".4"/>
+    <path d="M110,23 Q130,85 110,147" fill="none" stroke="var(--sv-stroke)" stroke-width="1" stroke-dasharray="5,4" opacity=".35"/>
+    <!-- axes -->
+    <line x1="110" y1="85" x2="208" y2="85" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="164" y="80" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">a</text>
+    <line x1="110" y1="85" x2="110" y2="23" stroke="var(--sv-dim)" stroke-width="1.2" stroke-dasharray="4,3"/>
+    <text x="116" y="56" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">c</text>
+    <text x="116" y="100" font-family="Space Mono,monospace" font-size="10" fill="var(--sv-dim)" font-weight="700">b</text>
+    <circle cx="110" cy="85" r="3" fill="var(--sv-dim)"/>
+  `,'0 0 220 170'),
+};
+
+/* ═══════════════════════════════════
+   DATA
+═══════════════════════════════════ */
+const shapes2d=[
+  {id:'lingkaran',name:'Lingkaran',icon:'fa-circle',svgFn:svg2d.lingkaran,
+   inputs:[{id:'r',label:'Jari-jari (r)',ph:'mis. 7'}],
+   formulas:['Luas = π × r²','Keliling = 2 × π × r'],
+   calc:v=>[{label:'Luas',value:(PI*v.r**2).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(2*PI*v.r).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'persegi',name:'Persegi',icon:'fa-square',svgFn:svg2d.persegi,
+   inputs:[{id:'s',label:'Sisi (s)',ph:'mis. 5'}],
+   formulas:['Luas = s²','Keliling = 4 × s'],
+   calc:v=>[{label:'Luas',value:(v.s**2).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(4*v.s).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'persegipanjang',name:'Persegi Panjang',icon:'fa-rectangle-wide',svgFn:svg2d.persegipanjang,
+   inputs:[{id:'p',label:'Panjang (p)',ph:'mis. 10'},{id:'l',label:'Lebar (l)',ph:'mis. 5'}],
+   formulas:['Luas = p × l','Keliling = 2 × (p + l)'],
+   calc:v=>[{label:'Luas',value:(v.p*v.l).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(2*(v.p+v.l)).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'segitiga',name:'Segitiga',icon:'fa-play',svgFn:svg2d.segitiga,
+   inputs:[{id:'a',label:'Alas (a)',ph:'mis. 8'},{id:'t',label:'Tinggi (t)',ph:'mis. 6'},{id:'s1',label:'Sisi 1',ph:'mis. 7'},{id:'s2',label:'Sisi 2',ph:'mis. 7'},{id:'s3',label:'Sisi 3 (alas)',ph:'mis. 8'}],
+   formulas:['Luas = ½ × a × t','Keliling = s1 + s2 + s3'],
+   calc:v=>[{label:'Luas',value:(.5*v.a*v.t).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(v.s1+v.s2+v.s3).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'trapesium',name:'Trapesium',icon:'fa-filter',svgFn:svg2d.trapesium,
+   inputs:[{id:'a',label:'Sisi sejajar a',ph:'mis. 10'},{id:'b',label:'Sisi sejajar b',ph:'mis. 6'},{id:'t',label:'Tinggi (t)',ph:'mis. 5'},{id:'c',label:'Sisi miring 1',ph:'mis. 5'},{id:'d',label:'Sisi miring 2',ph:'mis. 5'}],
+   formulas:['Luas = ½ × (a+b) × t','Keliling = a + b + c + d'],
+   calc:v=>[{label:'Luas',value:(.5*(v.a+v.b)*v.t).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(v.a+v.b+v.c+v.d).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'jajarangenjang',name:'Jajargenjang',icon:'fa-arrows-left-right',svgFn:svg2d.jajarangenjang,
+   inputs:[{id:'a',label:'Alas (a)',ph:'mis. 10'},{id:'t',label:'Tinggi (t)',ph:'mis. 7'},{id:'b',label:'Sisi miring (b)',ph:'mis. 8'}],
+   formulas:['Luas = a × t','Keliling = 2 × (a + b)'],
+   calc:v=>[{label:'Luas',value:(v.a*v.t).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(2*(v.a+v.b)).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'belahketupat',name:'Belah Ketupat',icon:'fa-diamond',svgFn:svg2d.belahketupat,
+   inputs:[{id:'d1',label:'Diagonal 1 (d1)',ph:'mis. 10'},{id:'d2',label:'Diagonal 2 (d2)',ph:'mis. 8'}],
+   formulas:['Luas = ½ × d1 × d2','Keliling = 4 × √((d1/2)² + (d2/2)²)'],
+   calc:v=>{const s=Math.sqrt((v.d1/2)**2+(v.d2/2)**2);return[{label:'Luas',value:(.5*v.d1*v.d2).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(4*s).toFixed(6),unit:'satuan',c:'var(--gold)'}]}},
+  {id:'elips',name:'Elips',icon:'fa-egg',svgFn:svg2d.elips,
+   inputs:[{id:'a',label:'Semi-major (a)',ph:'mis. 7'},{id:'b',label:'Semi-minor (b)',ph:'mis. 4'}],
+   formulas:['Luas = π × a × b','Keliling ≈ π[3(a+b)−√((3a+b)(a+3b))]'],
+   calc:v=>{const k=PI*(3*(v.a+v.b)-Math.sqrt((3*v.a+v.b)*(v.a+3*v.b)));return[{label:'Luas',value:(PI*v.a*v.b).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling (approx)',value:k.toFixed(6),unit:'satuan',c:'var(--gold)'}]}},
+  {id:'segi5',name:'Segi Lima',icon:'fa-star',svgFn:svg2d.segi5,
+   inputs:[{id:'s',label:'Panjang Sisi (s)',ph:'mis. 6'}],
+   formulas:['Luas = (5/4)×s²×tan(54°)','Keliling = 5 × s'],
+   calc:v=>[{label:'Luas',value:((5/4)*v.s**2*Math.tan(54*PI/180)).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(5*v.s).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+  {id:'segi6',name:'Segi Enam',icon:'fa-shapes',svgFn:svg2d.segi6,
+   inputs:[{id:'s',label:'Panjang Sisi (s)',ph:'mis. 5'}],
+   formulas:['Luas = (3√3/2) × s²','Keliling = 6 × s'],
+   calc:v=>[{label:'Luas',value:((3*Math.sqrt(3)/2)*v.s**2).toFixed(6),unit:'satuan²',c:'var(--accent)'},{label:'Keliling',value:(6*v.s).toFixed(6),unit:'satuan',c:'var(--gold)'}]},
+];
+
+const shapes3d=[
+  {id:'kubus',name:'Kubus',icon:'fa-cube',svgFn:svg3d.kubus,
+   inputs:[{id:'s',label:'Sisi (s)',ph:'mis. 5'}],
+   formulas:['Volume = s³','Luas Permukaan = 6 × s²'],
+   calc:v=>[{label:'Volume',value:(v.s**3).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(6*v.s**2).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'balok',name:'Balok',icon:'fa-box',svgFn:svg3d.balok,
+   inputs:[{id:'p',label:'Panjang (p)',ph:'mis. 8'},{id:'l',label:'Lebar (l)',ph:'mis. 5'},{id:'t',label:'Tinggi (t)',ph:'mis. 4'}],
+   formulas:['Volume = p × l × t','Luas Permukaan = 2(pl+pt+lt)'],
+   calc:v=>[{label:'Volume',value:(v.p*v.l*v.t).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(2*(v.p*v.l+v.p*v.t+v.l*v.t)).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'bola',name:'Bola',icon:'fa-circle',svgFn:svg3d.bola,
+   inputs:[{id:'r',label:'Jari-jari (r)',ph:'mis. 7'}],
+   formulas:['Volume = (4/3) × π × r³','Luas Permukaan = 4 × π × r²'],
+   calc:v=>[{label:'Volume',value:((4/3)*PI*v.r**3).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(4*PI*v.r**2).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'silinder',name:'Silinder',icon:'fa-database',svgFn:svg3d.silinder,
+   inputs:[{id:'r',label:'Jari-jari (r)',ph:'mis. 5'},{id:'t',label:'Tinggi (t)',ph:'mis. 10'}],
+   formulas:['Volume = π × r² × t','Luas Permukaan = 2πr(r + t)'],
+   calc:v=>[{label:'Volume',value:(PI*v.r**2*v.t).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(2*PI*v.r*(v.r+v.t)).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'kerucut',name:'Kerucut',icon:'fa-play',svgFn:svg3d.kerucut,
+   inputs:[{id:'r',label:'Jari-jari alas (r)',ph:'mis. 5'},{id:'t',label:'Tinggi (t)',ph:'mis. 12'}],
+   formulas:['Volume = (1/3)×π×r²×t','Luas Permukaan = πr(r+s), s=√(r²+t²)'],
+   calc:v=>{const s=Math.sqrt(v.r**2+v.t**2);return[{label:'Volume',value:((1/3)*PI*v.r**2*v.t).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(PI*v.r*(v.r+s)).toFixed(6),unit:'satuan²',c:'var(--gold)'},{label:'Garis Pelukis (s)',value:s.toFixed(6),unit:'satuan',c:'var(--teal)'}]}},
+  {id:'limas',name:'Limas Segi 4',icon:'fa-mountain',svgFn:svg3d.limas,
+   inputs:[{id:'p',label:'Panjang alas (p)',ph:'mis. 8'},{id:'l',label:'Lebar alas (l)',ph:'mis. 8'},{id:'t',label:'Tinggi (t)',ph:'mis. 10'}],
+   formulas:['Volume = (1/3)×p×l×t','Luas Permukaan = pl + Σ sisi tegak'],
+   calc:v=>{const ts1=Math.sqrt((v.p/2)**2+v.t**2),ts2=Math.sqrt((v.l/2)**2+v.t**2);return[{label:'Volume',value:((1/3)*v.p*v.l*v.t).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(v.p*v.l+v.p*ts1+v.l*ts2).toFixed(6),unit:'satuan²',c:'var(--gold)'}]}},
+  {id:'prisma',name:'Prisma Segitiga',icon:'fa-layer-group',svgFn:svg3d.prisma,
+   inputs:[{id:'a',label:'Alas segitiga (a)',ph:'mis. 6'},{id:'t',label:'Tinggi segitiga (t)',ph:'mis. 4'},{id:'tp',label:'Panjang prisma (p)',ph:'mis. 10'},{id:'s1',label:'Sisi 1',ph:'mis. 5'},{id:'s2',label:'Sisi 2',ph:'mis. 5'}],
+   formulas:['Volume = ½×a×t×panjang','Luas = 2×Lalas + keliling×panjang'],
+   calc:v=>{const la=.5*v.a*v.t,kel=v.a+v.s1+v.s2;return[{label:'Volume',value:(la*v.tp).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(2*la+kel*v.tp).toFixed(6),unit:'satuan²',c:'var(--gold)'}]}},
+  {id:'setengahbola',name:'Setengah Bola',icon:'fa-circle-half-stroke',svgFn:svg3d.setengahbola,
+   inputs:[{id:'r',label:'Jari-jari (r)',ph:'mis. 7'}],
+   formulas:['Volume = (2/3)×π×r³','Luas Permukaan = 3×π×r²'],
+   calc:v=>[{label:'Volume',value:((2/3)*PI*v.r**3).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(3*PI*v.r**2).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'torus',name:'Torus',icon:'fa-ring',svgFn:svg3d.torus,
+   inputs:[{id:'R',label:'Jari-jari mayor (R)',ph:'mis. 8'},{id:'r',label:'Jari-jari minor (r)',ph:'mis. 3'}],
+   formulas:['Volume = 2π² × R × r²','Luas Permukaan = 4π² × R × r'],
+   calc:v=>[{label:'Volume',value:(2*PI**2*v.R*v.r**2).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan',value:(4*PI**2*v.R*v.r).toFixed(6),unit:'satuan²',c:'var(--gold)'}]},
+  {id:'elipsoid',name:'Elipsoid',icon:'fa-egg',svgFn:svg3d.elipsoid,
+   inputs:[{id:'a',label:'Semi-axis a',ph:'mis. 5'},{id:'b',label:'Semi-axis b',ph:'mis. 4'},{id:'c',label:'Semi-axis c',ph:'mis. 3'}],
+   formulas:['Volume = (4/3)×π×a×b×c','Luas ≈ Knud Thomsen formula'],
+   calc:v=>{const p=1.6075,lp=4*PI*Math.pow((Math.pow(v.a*v.b,p)+Math.pow(v.a*v.c,p)+Math.pow(v.b*v.c,p))/3,1/p);return[{label:'Volume',value:((4/3)*PI*v.a*v.b*v.c).toFixed(6),unit:'satuan³',c:'var(--accent)'},{label:'Luas Permukaan (approx)',value:lp.toFixed(6),unit:'satuan²',c:'var(--gold)'}]}},
+];
+
+/* ═══ LOGIC ═══ */
+let cur=null;
+function renderCards(list,cid){
+  const $c=$(`#${cid}`).empty();
+  list.forEach(s=>$c.append(`<div class="scard" data-id="${s.id}" onclick="selectShape('${s.id}','${cid==='shapes2d'?'2d':'3d'}')"><div class="si"><i class="fa-solid ${s.icon}"></i></div><p class="sn">${s.name}</p></div>`));
+}
+function selectShape(id,dim){
+  const list=dim==='2d'?shapes2d:shapes3d;
+  cur=list.find(s=>s.id===id);if(!cur)return;
+  $(`#shapes${dim} .scard`).removeClass('active');
+  $(`#shapes${dim} .scard[data-id="${id}"]`).addClass('active');
+  $('#emptyState').hide();$('#calcArea').show().addClass('fade-up');
+  $('#calcIcon').attr('class',`fa-solid ${cur.icon}`);
+  $('#calcTitle').text(cur.name);
+  $('#calcSub').text(dim==='2d'?'2 Dimensi':'3 Dimensi');
+  $('#svgPreview').html(cur.svgFn());
+  const $f=$('#inputFields').empty();
+  cur.inputs.forEach(inp=>$f.append(`<div><label class="f-label">${inp.label}</label><input type="number" id="inp_${inp.id}" class="f-input" placeholder="${inp.ph}" min="0" step="any"/></div>`));
+  const $fc=$('#formulaContent').empty();
+  cur.formulas.forEach(f=>$fc.append(`<p style="color:var(--accent);font-weight:700;margin-bottom:3px">${f}</p>`));
+  $('#resultsContainer').html(`<div style="text-align:center;color:var(--ink2);padding:20px 0"><i class="fa-regular fa-circle-question" style="font-size:36px;display:block;margin-bottom:10px;opacity:.25"></i><p style="font-family:'Space Mono',monospace;font-size:11px">Masukkan nilai & tekan hitung</p></div>`);
+  setTimeout(()=>$(`#inp_${cur.inputs[0].id}`).focus(),100);
+}
+function calculate(){
+  if(!cur)return;
+  const v={};let ok=true;
+  cur.inputs.forEach(inp=>{
+    const n=parseFloat($(`#inp_${inp.id}`).val());
+    const $el=$(`#inp_${inp.id}`);
+    if(isNaN(n)||n<=0){$el.addClass('err');ok=false;}
+    else{$el.removeClass('err');v[inp.id]=n;}
+  });
+  if(!ok){$('#resultsContainer').html(`<div style="text-align:center;padding:20px"><i class="fa-solid fa-triangle-exclamation" style="font-size:32px;color:var(--accent);display:block;margin-bottom:10px"></i><p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--ink2)">Semua nilai harus angka positif!</p></div>`);return;}
+  const res=cur.calc(v);
+  let html=`<div class="fade-up">`;
+  res.forEach(r=>{
+    const disp=fmt(r.value);
+    html+=`<div class="res-card" style="border-left:5px solid ${r.c}"><p class="res-lbl">${r.label}</p><p class="res-val" style="color:${r.c}">${disp}</p><span class="res-unit">${r.unit}</span></div>`;
+  });
+  html+=`</div>`;$('#resultsContainer').html(html);
+}
+function fmt(val){
+  const n=parseFloat(val);
+  if(n>=1e8)return n.toExponential(5);
+  const clean=parseFloat(n.toFixed(6));
+  if(Number.isInteger(clean))return clean.toLocaleString('id-ID');
+  return clean.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:6});
+}
+function switchDim(dim){
+  $('#tab2d,#tab3d').removeClass('active');$(`#tab${dim}`).addClass('active');
+  $('.panel').removeClass('active');$(`#panel${dim}`).addClass('active');
+  cur=null;$('#calcArea').hide().removeClass('fade-up');$('#emptyState').show();
+}
+function applyTheme(t){
+  $('html').attr('data-theme',t);localStorage.setItem('rebornian.theme',t);
+  if(t==='dark'){$('#themeIcon').attr('class','fa-solid fa-moon');$('#themeLabel').text('Dark');}
+  else{$('#themeIcon').attr('class','fa-solid fa-sun');$('#themeLabel').text('Light');}
+  if(cur){$('#svgPreview').html(cur.svgFn());}
+}
+$('#themeToggle').on('click',()=>applyTheme($('html').attr('data-theme')==='dark'?'light':'dark'));
+// sync with brand bar toggle
+window.addEventListener('r48:theme',e=>{
+  const t=e.detail.theme;
+  if(t==='dark'){$('#themeIcon').attr('class','fa-solid fa-moon');$('#themeLabel').text('Dark');}
+  else{$('#themeIcon').attr('class','fa-solid fa-sun');$('#themeLabel').text('Light');}
+  if(cur){$('#svgPreview').html(cur.svgFn());}
+});
+$(document).on('keydown','#inputFields input',function(e){if(e.key==='Enter')calculate();});
+$(function(){
+  applyTheme($('html').attr('data-theme')||'light');
+  renderCards(shapes2d,'shapes2d');
+  renderCards(shapes3d,'shapes3d');
+});
+</script>
+<script src="/assets/brand.js" data-app="geocalc" defer></script>
+</body>
+</html>
