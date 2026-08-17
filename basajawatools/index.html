@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basa Jawa Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Javanese&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/brand.css">
+<script>
+(function(){
+  const s = localStorage.getItem('rebornian.theme');
+  const d = matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', s || (d ? 'dark' : 'light'));
+})();
+</script>
+<style>
+  :root {
+    --bg: #f5ead8;
+    --surface: #fffaf0;
+    --surface2: #ede0c8;
+    --border: #c9b48a;
+    --gold: #a8802a;
+    --gold-light: #c9983a;
+    --gold-dim: #7a5a20;
+    --cream: #2a1f14;
+    --cream-dim: #4a3a2a;
+    --red: #8b3a2a;
+    --red-bright: #c4543e;
+    --green: #2a5a3a;
+    --green-bright: #3d8a58;
+    --blue: #1e3a5a;
+    --blue-bright: #2e6a9a;
+    --text: #2a1f14;
+    --text-dim: #7a6850;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0d0a07;
+    --surface: #1a1410;
+    --surface2: #251c14;
+    --border: #3d2e1e;
+    --gold: #c9983a;
+    --gold-light: #e8b84a;
+    --gold-dim: #7a5a20;
+    --cream: #f5ead8;
+    --cream-dim: #b8a88a;
+    --text: #e8d8b8;
+    --text-dim: #8a7a60;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Batik-inspired background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 120px 120px at 15% 20%, rgba(201,152,58,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 80px 80px at 85% 70%, rgba(201,152,58,0.03) 0%, transparent 70%),
+      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,152,58,0.015) 40px, rgba(201,152,58,0.015) 41px),
+      repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(201,152,58,0.01) 40px, rgba(201,152,58,0.01) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 48px 0 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::after {
+    content: '✦';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 0 16px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  .aksara-deco {
+    font-family: 'Noto Serif Javanese', serif;
+    font-size: 28px;
+    color: var(--gold-dim);
+    letter-spacing: 8px;
+    display: block;
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  h1 em {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    margin: 40px 0 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 14px 12px;
+    background: var(--surface);
+    border: none;
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .tab:last-child { border-right: none; }
+
+  .tab:hover {
+    background: var(--surface2);
+    color: var(--cream-dim);
+  }
+
+  .tab.active {
+    background: var(--surface2);
+    color: var(--gold);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .tab-icon {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  /* Main panel */
+  .panel {
+    display: none;
+    padding: 40px 0;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-header {
+    margin-bottom: 28px;
+  }
+
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .panel-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* IO Area */
+  .io-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  @media (max-width: 600px) {
+    .io-grid {
+      grid-template-columns: 1fr;
+    }
+    .arrow-col { display: none; }
+  }
+
+  .io-box label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+  }
+
+  textarea, .output-box {
+    width: 100%;
+    min-height: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  textarea:focus {
+    border-color: var(--gold-dim);
+  }
+
+  textarea::placeholder {
+    color: var(--text-dim);
+    opacity: 0.5;
+  }
+
+  .output-box {
+    min-height: 160px;
+    cursor: default;
+    user-select: text;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .output-box.aksara {
+    font-family: 'Noto Serif Javanese', serif;
+    font-size: 22px;
+    line-height: 2.2;
+    letter-spacing: 2px;
+    color: var(--gold-light);
+  }
+
+  .output-box.walikan {
+    font-size: 16px;
+    color: var(--cream);
+  }
+
+  .output-box.empty {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  .arrow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 32px;
+    gap: 12px;
+  }
+
+  .arrow-icon {
+    color: var(--gold-dim);
+    font-size: 20px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* Controls */
+  .controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border: 1px solid var(--gold-dim);
+    background: transparent;
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .btn:hover {
+    background: var(--gold-dim);
+    color: var(--bg);
+  }
+
+  .btn.primary {
+    background: var(--gold-dim);
+    color: var(--bg);
+  }
+
+  .btn.primary:hover {
+    background: var(--gold);
+  }
+
+  .btn.small {
+    padding: 8px 16px;
+    font-size: 10px;
+  }
+
+  /* Options */
+  .options-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--cream-dim);
+    cursor: pointer;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .radio-label:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .radio-label input {
+    accent-color: var(--gold);
+  }
+
+  .radio-label.selected {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+    background: rgba(201,152,58,0.05);
+  }
+
+  /* Copy button overlay */
+  .output-wrapper {
+    position: relative;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    opacity: 0;
+  }
+
+  .output-wrapper:hover .copy-btn {
+    opacity: 1;
+  }
+
+  .copy-btn:hover {
+    background: var(--gold-dim);
+    color: var(--bg);
+    border-color: var(--gold-dim);
+  }
+
+  .copy-btn.copied {
+    color: var(--green-bright);
+    border-color: var(--green-bright);
+    opacity: 1;
+  }
+
+  /* Info cards */
+  .info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .info-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-card p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* Footer */
+  footer {
+    padding: 32px 0;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  footer p {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    line-height: 2;
+  }
+
+  footer a {
+    color: var(--gold-dim);
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: var(--gold);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .badge.ngalam { color: var(--red-bright); }
+  .badge.dagadu { color: var(--blue-bright); }
+  .badge.aksara { color: var(--gold); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="aksara-deco">ꦲꦏ꧀ꦱꦫꦗꦮ</span>
+    <h1>Basa Jawa <em>Tools</em></h1>
+    <p class="subtitle">Translasi · Transliterasi · Walikan</p>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="tab active" onclick="switchTab('ngalam')">
+      <span class="tab-icon">🔄</span>
+      Walikan Ngalam
+    </button>
+    <button class="tab" onclick="switchTab('dagadu')">
+      <span class="tab-icon">🎭</span>
+      Dagadu Jogja
+    </button>
+    <button class="tab" onclick="switchTab('aksara')">
+      <span class="tab-icon">ꦲ</span>
+      Aksara Jawa
+    </button>
+  </div>
+
+  <!-- PANEL: Ngalam -->
+  <div id="panel-ngalam" class="panel active">
+    <div class="panel-header">
+      <h2 class="panel-title">Walikan Ngalam <span class="badge ngalam">Malang</span></h2>
+      <p class="panel-desc">
+        Basa walikan khas Kera Ngalam — seluruh huruf kata dibalik urutannya, dengan catatan
+        digraf <em>ng</em> dan <em>ny</em> diperlakukan sebagai satu unit (tidak dipisah).
+        Contoh: <em>"malang"</em> → <em>"ngalam"</em>, <em>"enak"</em> → <em>"kane"</em>.
+      </p>
+    </div>
+
+    <div class="options-row" id="ngalam-options">
+      <label class="radio-label selected">
+        <input type="radio" name="ngalam-mode" value="encode" checked onchange="updateRadioStyle('ngalam')"> Encode (Normal → Walikan)
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="ngalam-mode" value="decode" onchange="updateRadioStyle('ngalam')"> Decode (Walikan → Normal)
+      </label>
+    </div>
+
+    <div class="io-grid" style="margin-top:20px">
+      <div class="io-box">
+        <label>Input</label>
+        <textarea id="ngalam-input" placeholder="Ketik kalimat di sini..." oninput="processNgalam()"></textarea>
+      </div>
+      <div class="arrow-col">
+        <span class="arrow-icon">→</span>
+      </div>
+      <div class="io-box">
+        <label>Output Walikan</label>
+        <div class="output-wrapper">
+          <div id="ngalam-output" class="output-box walikan empty">Hasil akan muncul di sini...</div>
+          <button class="copy-btn" onclick="copyOutput('ngalam-output')">Salin</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn small" onclick="clearField('ngalam-input'); processNgalam()">Hapus</button>
+      <button class="btn small" onclick="swapNgalam()">⇄ Balik</button>
+    </div>
+  </div>
+
+  <!-- PANEL: Dagadu -->
+  <div id="panel-dagadu" class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">Dagadu Jogja <span class="badge dagadu">Yogyakarta</span></h2>
+      <p class="panel-desc">
+        Basa walikan Jogja berbasis aksara Hanacaraka. Konsonan ditukar antar baris:
+        Baris 1 (ha·na·ca·ra·ka) ↔ Baris 3 (pa·dha·ja·ya·nya),
+        Baris 2 (da·ta·sa·wa·la) ↔ Baris 4 (ma·ga·ba·tha·nga). Vokal tetap.
+        Contoh: <em>"matamu"</em> → <em>"dagadu"</em>, <em>"mas"</em> → <em>"dab"</em>.
+      </p>
+    </div>
+
+    <div class="options-row" id="dagadu-options">
+      <label class="radio-label selected">
+        <input type="radio" name="dagadu-mode" value="encode" checked onchange="updateRadioStyle('dagadu')"> Encode (Normal → Dagadu)
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="dagadu-mode" value="decode" onchange="updateRadioStyle('dagadu')"> Decode (Dagadu → Normal)
+      </label>
+    </div>
+
+    <div class="io-grid" style="margin-top:20px">
+      <div class="io-box">
+        <label>Input</label>
+        <textarea id="dagadu-input" placeholder="Ketik kalimat di sini..." oninput="processDagadu()"></textarea>
+      </div>
+      <div class="arrow-col">
+        <span class="arrow-icon">→</span>
+      </div>
+      <div class="io-box">
+        <label>Output Dagadu</label>
+        <div class="output-wrapper">
+          <div id="dagadu-output" class="output-box walikan empty">Hasil akan muncul di sini...</div>
+          <button class="copy-btn" onclick="copyOutput('dagadu-output')">Salin</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn small" onclick="clearField('dagadu-input'); processDagadu()">Hapus</button>
+      <button class="btn small" onclick="swapDagadu()">⇄ Balik</button>
+    </div>
+  </div>
+
+  <!-- PANEL: Aksara Jawa -->
+  <div id="panel-aksara" class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">Aksara Jawa <span class="badge aksara">Transliterasi</span></h2>
+      <p class="panel-desc">
+        Mengubah teks Latin menjadi Aksara Jawa (Hanacaraka). Ketik dalam bahasa Jawa menggunakan aksara Latin,
+        dan hasilnya akan ditampilkan dalam huruf Jawa tradisional.
+      </p>
+    </div>
+
+    <div class="io-grid" style="margin-top:20px">
+      <div class="io-box">
+        <label>Input (Latin)</label>
+        <textarea id="aksara-input" placeholder="Contoh: aku seneng, hanacaraka..." oninput="processAksara()"></textarea>
+      </div>
+      <div class="arrow-col">
+        <span class="arrow-icon">→</span>
+      </div>
+      <div class="io-box">
+        <label>Output Aksara Jawa</label>
+        <div class="output-wrapper">
+          <div id="aksara-output" class="output-box aksara empty" style="font-family:'Noto Serif Javanese',serif">ꦲ​ꦏ꧀ꦱꦫ...</div>
+          <button class="copy-btn" onclick="copyOutput('aksara-output')">Salin</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn small" onclick="clearField('aksara-input'); processAksara()">Hapus</button>
+    </div>
+
+    <div class="divider"></div>
+    <div style="font-size:11px; color:var(--text-dim); line-height:2">
+      <strong style="color:var(--cream-dim)">Panduan penulisan:</strong> Gunakan aksara latin standar.
+      Konsonan rangkap: "ny", "ng", "th", "dh". Vokal: a, i, u, e, o. Pangkon (konsonan mati) otomatis ditambah.
+    </div>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="info-cards">
+    <div class="info-card">
+      <h3>🔄 Walikan Ngalam</h3>
+      <p>Basa walikan khas kota Malang. Suku kata dibalik urutannya. Lahir dari komunitas anak muda Malang sebagai bahasa gaul dan identitas daerah.</p>
+    </div>
+    <div class="info-card">
+      <h3>🎭 Dagadu Jogja</h3>
+      <p>Berasal dari kata "matamu" yang dibalik menjadi "udagam" → "dagadu". Kini menjadi ikon budaya Yogyakarta, terkenal lewat brand kaos Dagadu Djokdja.</p>
+    </div>
+    <div class="info-card">
+      <h3>ꦲ Aksara Jawa</h3>
+      <p>Aksara Hanacaraka adalah sistem tulisan tradisional Jawa. Terdiri dari 20 aksara dasar, digunakan sejak abad ke-15 dan kini dilestarikan sebagai warisan budaya.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      Berdasarkan karya <a href="https://github.com/lantip/ngalam" target="_blank">ngalam</a> ·
+      <a href="https://github.com/lantip/dagadu" target="_blank">dagadu</a> ·
+      <a href="https://github.com/lantip/latintojavanese" target="_blank">latintojavanese</a>
+      oleh <a href="https://github.com/lantip" target="_blank">lantip</a>
+    </p>
+    <p style="margin-top:4px">Nguri-uri kabudayan Jawa · Melestarikan budaya Nusantara</p>
+  </footer>
+</div>
+
+<script>
+// =============================================
+// TAB SWITCHING
+// =============================================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function updateRadioStyle(group) {
+  const container = document.getElementById(group + '-options');
+  container.querySelectorAll('.radio-label').forEach(label => {
+    label.classList.toggle('selected', label.querySelector('input').checked);
+  });
+  if (group === 'ngalam') processNgalam();
+  if (group === 'dagadu') processDagadu();
+}
+
+function clearField(id) {
+  document.getElementById(id).value = '';
+}
+
+function copyOutput(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.parentElement.querySelector('.copy-btn');
+    const orig = btn.innerText;
+    btn.innerText = '✓ Tersalin';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerText = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// =============================================
+// NGALAM — Walikan Malang
+// Algoritma: balik suku kata tiap kata
+// =============================================
+
+// Walikan Ngalam: balik seluruh kata, tapi digraf 'ng' dan 'ny'
+// diperlakukan sebagai SATU unit (tidak dipisah saat dibalik).
+// Contoh: "malang" → token [m,a,l,a,ng] → balik → [ng,a,l,a,m] → "ngalam"
+//          "enak"  → token [e,n,a,k]    → balik → [k,a,n,e]    → "kane"
+
+function tokenizeNgalam(word) {
+  // Pecah kata menjadi token: digraf 'ng'/'ny' sebagai satu unit, sisanya per huruf
+  const tokens = [];
+  const w = word.toLowerCase();
+  let i = 0;
+  while (i < w.length) {
+    const di = w.slice(i, i + 2);
+    if (di === 'ng' || di === 'ny') {
+      tokens.push(word.slice(i, i + 2)); // ambil dari kata asli (jaga case)
+      i += 2;
+    } else {
+      tokens.push(word[i]);
+      i++;
+    }
+  }
+  return tokens;
+}
+
+function preserveCase(original, modified) {
+  if (original === original.toUpperCase()) return modified.toUpperCase();
+  if (original[0] === original[0].toUpperCase() && original.slice(1) === original.slice(1).toLowerCase()) {
+    return modified[0].toUpperCase() + modified.slice(1).toLowerCase();
+  }
+  return modified.toLowerCase();
+}
+
+function ngalamEncode(word) {
+  if (!word) return word;
+  const match = word.match(/^([^a-zA-Z]*)([a-zA-Z]+)([^a-zA-Z]*)$/);
+  if (!match) return word;
+  const [, pre, core, post] = match;
+  const tokens = tokenizeNgalam(core);
+  const reversed = tokens.reverse().join('');
+  return pre + preserveCase(core, reversed) + post;
+}
+
+function ngalamDecode(word) {
+  // Simetris: decode = encode ulang
+  return ngalamEncode(word);
+}
+
+function processNgalam() {
+  const input = document.getElementById('ngalam-input').value;
+  const mode = document.querySelector('input[name="ngalam-mode"]:checked').value;
+  const output = document.getElementById('ngalam-output');
+
+  if (!input.trim()) {
+    output.className = 'output-box walikan empty';
+    output.innerText = 'Hasil akan muncul di sini...';
+    return;
+  }
+
+  const result = input.split(/(\s+)/).map(token => {
+    if (/^\s+$/.test(token)) return token;
+    return mode === 'encode' ? ngalamEncode(token) : ngalamDecode(token);
+  }).join('');
+
+  output.className = 'output-box walikan';
+  output.innerText = result;
+}
+
+function swapNgalam() {
+  const inputEl = document.getElementById('ngalam-input');
+  const outputEl = document.getElementById('ngalam-output');
+  const outText = outputEl.innerText;
+  if (outText && !outputEl.classList.contains('empty')) {
+    inputEl.value = outText;
+    processNgalam();
+  }
+}
+
+// =============================================
+// DAGADU — Walikan Jogja
+// Berdasarkan repo dagadu oleh lantip
+// Algoritma: substitusi konsonan berdasarkan
+// 4 baris Hanacaraka (aksara Jawa):
+//
+// Baris 1: ha  na  ca  ra  ka
+// Baris 2: da  ta  sa  wa  la
+// Baris 3: pa  dha ja  ya  nya
+// Baris 4: ma  ga  ba  tha nga
+//
+// Rumus: Baris 1 ↔ Baris 3 (posisi sama)
+//        Baris 2 ↔ Baris 4 (posisi sama)
+// Vokal (a,i,u,e,o) TETAP tidak berubah
+// =============================================
+
+// Peta substitusi konsonan Dagadu (simetris)
+// ha=pa, na=dha, ca=ja, ra=ya, ka=nya
+// da=ma, ta=ga, sa=ba, wa=tha, la=nga
+const DAGADU_CONS_MAP = {
+  'h': 'p',   'p': 'h',
+  'n': 'dh',  'dh': 'n',
+  'c': 'j',   'j': 'c',
+  'r': 'y',   'y': 'r',
+  'k': 'ny',  'ny': 'k',
+  'd': 'm',   'm': 'd',
+  't': 'g',   'g': 't',
+  's': 'b',   'b': 's',
+  'w': 'th',  'th': 'w',
+  'l': 'ng',  'ng': 'l',
+};
+
+// Urutan pengecekan digraf (harus dicek duluan sebelum single char)
+const DAGADU_DIGRAPHS = ['dh', 'ny', 'th', 'ng'];
+
+function dagaduConvertChar(text, i) {
+  // Cek digraf dulu
+  for (const dg of DAGADU_DIGRAPHS) {
+    if (text.slice(i, i + dg.length).toLowerCase() === dg) {
+      const mapped = DAGADU_CONS_MAP[dg];
+      if (mapped) return { result: mapped, advance: dg.length };
+    }
+  }
+  // Single char
+  const ch = text[i].toLowerCase();
+  if ('aiueo'.includes(ch)) {
+    // Vokal tetap
+    return { result: text[i], advance: 1 };
+  }
+  const mapped = DAGADU_CONS_MAP[ch];
+  if (mapped) return { result: mapped, advance: 1 };
+  // Karakter lain tetap
+  return { result: text[i], advance: 1 };
+}
+
+function dagaduConvertWord(word) {
+  if (!word) return word;
+  let result = '';
+  let i = 0;
+  const lower = word.toLowerCase();
+  while (i < lower.length) {
+    const { result: r, advance } = dagaduConvertChar(lower, i);
+    result += r;
+    i += advance;
+  }
+  // Preserve casing dari kata asli
+  return preserveCase(word, result);
+}
+
+function dagaduEncodeWord(word) {
+  if (!word) return word;
+  const match = word.match(/^([^a-zA-Z]*)([a-zA-Z]+)([^a-zA-Z]*)$/);
+  if (!match) return word;
+  const [, pre, core, post] = match;
+  return pre + dagaduConvertWord(core) + post;
+}
+
+function dagaduDecodeWord(word) {
+  // Karena peta simetris, decode = encode
+  return dagaduEncodeWord(word);
+}
+
+function processDagadu() {
+  const input = document.getElementById('dagadu-input').value;
+  const mode = document.querySelector('input[name="dagadu-mode"]:checked').value;
+  const output = document.getElementById('dagadu-output');
+
+  if (!input.trim()) {
+    output.className = 'output-box walikan empty';
+    output.innerText = 'Hasil akan muncul di sini...';
+    return;
+  }
+
+  const result = input.split(/(\s+)/).map(token => {
+    if (/^\s+$/.test(token)) return token;
+    return mode === 'encode' ? dagaduEncodeWord(token) : dagaduDecodeWord(token);
+  }).join('');
+
+  output.className = 'output-box walikan';
+  output.innerText = result;
+}
+
+function swapDagadu() {
+  const inputEl = document.getElementById('dagadu-input');
+  const outputEl = document.getElementById('dagadu-output');
+  const outText = outputEl.innerText;
+  if (outText && !outputEl.classList.contains('empty')) {
+    inputEl.value = outText;
+    processDagadu();
+  }
+}
+
+// =============================================
+// AKSARA JAWA — Latin to Javanese Script
+// Berdasarkan latintojavanese.py oleh lantip
+// =============================================
+
+// Peta aksara dasar Hanacaraka
+const AKSARA = {
+  'ha': 'ꦲ', 'na': 'ꦤ', 'ca': 'ꦕ', 'ra': 'ꦫ', 'ka': 'ꦏ',
+  'da': 'ꦢ', 'ta': 'ꦠ', 'sa': 'ꦱ', 'wa': 'ꦮ', 'la': 'ꦭ',
+  'pa': 'ꦥ', 'dha': 'ꦝ', 'ja': 'ꦗ', 'ya': 'ꦪ', 'nya': 'ꦚ',
+  'ma': 'ꦩ', 'ga': 'ꦒ', 'ba': 'ꦧ', 'tha': 'ꦛ', 'nga': 'ꦔ',
+};
+
+// Pasangan (konsonan mati — pangkon)
+const PASANGAN = {
+  'h': '꧀ꦲ', 'n': '꧀ꦤ', 'c': '꧀ꦕ', 'r': '꧀ꦫ', 'k': '꧀ꦏ',
+  'd': '꧀ꦢ', 't': '꧀ꦠ', 's': '꧀ꦱ', 'w': '꧀ꦮ', 'l': '꧀ꦭ',
+  'p': '꧀ꦥ', 'j': '꧀ꦗ', 'y': '꧀ꦪ', 'm': '꧀ꦩ', 'g': '꧀ꦒ',
+  'b': '꧀ꦧ',
+};
+
+// Sandhangan vokal (mengubah vokal dasar 'a')
+const SANDHANGAN = {
+  'i': 'ꦶ', 'u': 'ꦸ', 'e': 'ꦺ', 'é': 'ꦺ', 'o': 'ꦺꦴ',
+  'ê': 'ꦼ', 'è': 'ꦺ',
+};
+
+// Aksara murda / khusus
+const PANGKON = '꧀';
+
+// Tanda baca & angka Jawa
+const PADA = {
+  '.': '꧉', ',': '꧈', ' ': ' ',
+};
+
+const ANGKA_JAWA = {
+  '0': '꧐', '1': '꧑', '2': '꧒', '3': '꧓', '4': '꧔',
+  '5': '꧕', '6': '꧖', '7': '꧗', '8': '꧘', '9': '꧙',
+};
+
+// Konsonan dengan digraf
+const DIGRAPH_CONS = ['ng', 'ny', 'th', 'dh'];
+const SINGLE_CONS = ['h', 'n', 'c', 'r', 'k', 'd', 't', 's', 'w', 'l', 'p', 'j', 'y', 'm', 'g', 'b'];
+
+// Peta konsonan ke aksara dasar
+const CONS_TO_AKSARA_BASE = {
+  'h': 'ꦲ', 'n': 'ꦤ', 'c': 'ꦕ', 'r': 'ꦫ', 'k': 'ꦏ',
+  'd': 'ꦢ', 't': 'ꦠ', 's': 'ꦱ', 'w': 'ꦮ', 'l': 'ꦭ',
+  'p': 'ꦥ', 'j': 'ꦗ', 'y': 'ꦪ', 'm': 'ꦩ', 'g': 'ꦒ',
+  'b': 'ꦧ', 'ng': 'ꦔ', 'ny': 'ꦚ', 'th': 'ꦛ', 'dh': 'ꦝ',
+};
+
+// Pasangan konsonan ke sandhangan
+const CONS_TO_PASANGAN = {
+  'h': '꧀ꦲ', 'n': '꧀ꦤ', 'c': '꧀ꦕ', 'r': '꧀ꦫ', 'k': '꧀ꦏ',
+  'd': '꧀ꦢ', 't': '꧀ꦠ', 's': '꧀ꦱ', 'w': '꧀ꦮ', 'l': '꧀ꦭ',
+  'p': '꧀ꦥ', 'j': '꧀ꦗ', 'y': '꧀ꦪ', 'm': '꧀ꦩ', 'g': '꧀ꦒ',
+  'b': '꧀ꦧ', 'ng': '꧀ꦔ', 'ny': '꧀ꦚ', 'th': '꧀ꦛ', 'dh': '꧀ꦝ',
+};
+
+// Sandhangan vokal
+const VOC_SANDH = {
+  'a': '',      // default, tidak perlu sandhangan
+  'i': 'ꦶ',
+  'u': 'ꦸ',
+  'e': 'ꦺ',
+  'é': 'ꦺ',
+  'o': 'ꦺꦴ',
+  'ê': 'ꦼ',
+};
+
+// Aksara vokal mandiri (di awal kata atau setelah vokal)
+const VOWEL_ALONE = {
+  'a': 'ꦄ', 'i': 'ꦆ', 'u': 'ꦈ', 'e': 'ꦌ', 'o': 'ꦎ',
+};
+
+function latinToJavanese(text) {
+  if (!text) return '';
+  const words = text.split(/(\s+|[.,!?;:])/);
+  return words.map(token => {
+    if (!token) return '';
+    if (/^\s+$/.test(token)) return token;
+    if (/^[.,!?;:]$/.test(token)) return PADA[token] || token;
+    if (/^\d+$/.test(token)) {
+      return '꧇' + token.split('').map(d => ANGKA_JAWA[d] || d).join('') + '꧇';
+    }
+    return convertWord(token.toLowerCase());
+  }).join('');
+}
+
+function convertWord(word) {
+  if (!word) return '';
+  let result = '';
+  let i = 0;
+
+  while (i < word.length) {
+    const ch = word[i];
+
+    // Digit
+    if (/\d/.test(ch)) {
+      result += ANGKA_JAWA[ch] || ch;
+      i++;
+      continue;
+    }
+
+    // Tanda baca
+    if (/[.,!?;:]/.test(ch)) {
+      result += PADA[ch] || ch;
+      i++;
+      continue;
+    }
+
+    // Vokal di awal suku kata atau awal kata
+    if ('aiueoéê'.includes(ch)) {
+      if (i === 0 || 'aiueoéê'.includes(word[i-1])) {
+        // Vokal mandiri
+        result += VOWEL_ALONE[ch] || 'ꦄ';
+      } else {
+        // sandhangan sudah ditambahkan oleh konsonan sebelumnya
+      }
+      i++;
+      continue;
+    }
+
+    // Cek digraf konsonan
+    let cons = '';
+    let consLen = 1;
+    if (i + 1 < word.length) {
+      const di = word.slice(i, i + 2);
+      if (['ng', 'ny', 'th', 'dh'].includes(di)) {
+        cons = di;
+        consLen = 2;
+      }
+    }
+    if (!cons) {
+      cons = ch;
+      consLen = 1;
+    }
+
+    if (!CONS_TO_AKSARA_BASE[cons]) {
+      // Karakter tidak dikenal, lewati
+      result += ch;
+      i++;
+      continue;
+    }
+
+    // Cek vokal setelah konsonan
+    const nextIdx = i + consLen;
+    const nextCh = nextIdx < word.length ? word[nextIdx] : '';
+
+    if ('aiueoéê'.includes(nextCh)) {
+      // Konsonan + vokal
+      const base = CONS_TO_AKSARA_BASE[cons];
+      const sandh = VOC_SANDH[nextCh] || '';
+      result += base + sandh;
+      i = nextIdx + 1;
+    } else if (!nextCh || !' aiueoéê'.includes(nextCh)) {
+      // Konsonan mati (akhir kata atau sebelum konsonan lain)
+      const base = CONS_TO_AKSARA_BASE[cons];
+      result += base + PANGKON;
+      i = nextIdx;
+    } else {
+      result += CONS_TO_AKSARA_BASE[cons];
+      i = nextIdx;
+    }
+  }
+
+  return result;
+}
+
+function processAksara() {
+  const input = document.getElementById('aksara-input').value;
+  const output = document.getElementById('aksara-output');
+
+  if (!input.trim()) {
+    output.className = 'output-box aksara empty';
+    output.innerText = 'ꦲ​ꦏ꧀ꦱꦫ...';
+    return;
+  }
+
+  const result = latinToJavanese(input);
+  output.className = 'output-box aksara';
+  output.innerText = result || '—';
+}
+
+// Init
+processNgalam();
+processDagadu();
+processAksara();
+</script>
+<script src="/assets/brand.js" data-app="basajawa" defer></script>
+</body>
+</html>

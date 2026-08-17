@@ -1,0 +1,77 @@
+/* rebornian48 shared brand bar — inject via assets/brand.js */
+.r48-bar {
+  position: sticky; top: 0; z-index: 9998;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--r48-bar-bg, #0d1220);
+  color: var(--r48-bar-fg, #eef2fb);
+  border-bottom: 1px solid var(--r48-bar-border, rgba(255,255,255,.08));
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
+  box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 6px 24px rgba(0,0,0,.12);
+  backdrop-filter: blur(8px);
+}
+.r48-bar .r48-brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+.r48-bar .r48-logo {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #a77bff, #ff3b6b);
+  color: #fff; flex-shrink: 0;
+}
+.r48-bar .r48-logo svg { width: 14px; height: 14px; }
+.r48-bar .r48-name { font-weight: 800; letter-spacing: -0.02em; }
+.r48-bar .r48-sep { opacity: .45; margin: 0 2px; font-weight: 500; }
+.r48-bar .r48-app {
+  color: #ff5c85; font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(255, 92, 133, .1);
+  border-radius: 999px;
+  font-size: 12px;
+}
+.r48-bar .r48-mid { text-align: center; opacity: .55; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 720px) { .r48-bar .r48-mid { display: none; } }
+
+.r48-bar .r48-actions { display: inline-flex; align-items: center; gap: 8px; }
+.r48-bar .r48-toggle {
+  display: inline-flex;
+  padding: 3px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px;
+  gap: 2px;
+}
+.r48-bar .r48-toggle button {
+  appearance: none; border: 0;
+  width: 26px; height: 26px;
+  border-radius: 999px;
+  background: transparent; color: inherit;
+  opacity: .55; cursor: pointer;
+  display: grid; place-items: center;
+  transition: all .2s;
+}
+.r48-bar .r48-toggle button svg { width: 13px; height: 13px; }
+.r48-bar .r48-toggle button[aria-pressed="true"] {
+  background: #ff5c85; color: #0d1220;
+  opacity: 1;
+}
+.r48-bar .r48-toggle button:hover { opacity: 1; }
+.r48-bar .r48-back {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 11px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  color: inherit; text-decoration: none;
+  font-size: 12px; font-weight: 600;
+  transition: all .15s;
+}
+.r48-bar .r48-back:hover { background: rgba(255,255,255,.12); }
+.r48-bar .r48-back svg { width: 12px; height: 12px; }
+
+/* Light theme override — bar stays dark (matches brand consistency across apps) */
+/* Apps can override --r48-bar-bg via [data-theme="light"] .r48-bar { --r48-bar-bg: ...; } if desired */

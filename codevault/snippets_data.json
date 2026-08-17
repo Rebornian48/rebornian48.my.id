@@ -1,0 +1,82 @@
+[
+    {
+        "id": "snip_1780890178_1326",
+        "nama": "fungsi-tarik-data-populasi",
+        "detail": "fungsi tarik data populasi ternak per kabupaten\/kota",
+        "lang": "SQL",
+        "tag": "",
+        "kode": "SELECT tahun, provinsi.nama as provinsi, kota_kabupaten.nama as kota_kabupaten, jenis_ternak.jenis_ternak, jumlah FROM populasi INNER JOIN provinsi ON id_provinsi = provinsi.id INNER JOIN kota_kabupaten ON id_kabupaten_kota = kota_kabupaten.id INNER JOIN jenis_ternak ON id_jenis_ternak = jenis_ternak.id",
+        "createdAt": "2026-06-08T03:42:58+00:00",
+        "updatedAt": "2026-06-08T03:42:58+00:00"
+    },
+    {
+        "id": "snip_1780889821_9593",
+        "nama": "fungsi-tarik-data-produksi",
+        "detail": "fungsi tarik data produksi ternak dalam wilayah",
+        "lang": "SQL",
+        "tag": "",
+        "kode": "SELECT tahun, provinsi.nama as provinsi, kota_kabupaten.nama as kota_kabupaten, jenis_ternak.jenis_ternak, jenis_produk_ternak.nama as produk_ternak, jumlah FROM produksi INNER JOIN provinsi ON id_provinsi = provinsi.id INNER JOIN kota_kabupaten ON id_kabupaten_kota = kota_kabupaten.id INNER JOIN jenis_ternak ON id_jenis_ternak = jenis_ternak.id INNER JOIN jenis_produk_ternak ON id_jenis_produk = jenis_produk_ternak.id",
+        "createdAt": "2026-06-08T03:37:01+00:00",
+        "updatedAt": "2026-06-08T03:37:01+00:00"
+    },
+    {
+        "id": "snip_1777348709_3380",
+        "nama": "MoveToFolder",
+        "detail": "Pindahkan file dan menyimpan ke dalam folder tahun dalam nama file",
+        "lang": "Lainnya",
+        "tag": "",
+        "kode": "# Buat folder untuk setiap tahun\n2013..2021 | ForEach-Object {\n    $folderName = $_.ToString()\n    if (-not (Test-Path $folderName)) {\n        New-Item -ItemType Directory -Path $folderName\n        Write-Host \"Folder $folderName dibuat\"\n    }\n}\n\n# Pindahkan file berdasarkan tahun dalam nama file\nGet-ChildItem -Filter \"*.xls\" | ForEach-Object {\n    if ($_.Name -match '\\d{4}') {\n        $year = $matches[0]\n        $destination = Join-Path $year $_.Name\n        Move-Item -Path $_.FullName -Destination $destination\n        Write-Host \"Memindahkan $($_.Name) ke folder $year\"\n    }\n}\n\nWrite-Host \"Selesai!\"",
+        "createdAt": "2026-04-28T03:58:29+00:00",
+        "updatedAt": "2026-04-28T03:58:29+00:00"
+    },
+    {
+        "id": "snip_1775526920_7954",
+        "nama": "DeleteUnderData",
+        "detail": "Menghapus data di bawah tulisan tertentu, misal di sini \"2023\"",
+        "lang": "Lainnya",
+        "tag": "Excel",
+        "kode": "Sub HapusDataBawah2023()\n    Dim ws As Worksheet\n    Dim headerCell As Range\n    Dim dataCell As Range\n    Dim lastRow As Long\n    Dim col As Long\n    \n    For Each ws In ThisWorkbook.Worksheets\n        ' Cari kolom dengan header \"2023\"\n        For Each headerCell In ws.UsedRange.Rows(6).Cells\n            If headerCell.Value = \"2023\" Then\n                col = headerCell.Column\n                lastRow = ws.Cells(ws.Rows.Count, col).End(xlUp).Row\n                \n                ' Hapus data di bawah header, kecuali yang berisi rumus\n                Dim i As Long\n                For i = headerCell.Row + 1 To lastRow\n                    Set dataCell = ws.Cells(i, col)\n                    If Not dataCell.HasFormula Then\n                        dataCell.ClearContents\n                    End If\n                Next i\n            End If\n        Next headerCell\n    Next ws\n    \n    MsgBox \"Selesai! Data non-formula di bawah kolom '2023' telah dihapus.\"\nEnd Sub\n",
+        "createdAt": "2026-04-07T01:55:20+00:00",
+        "updatedAt": "2026-04-07T01:55:20+00:00"
+    },
+    {
+        "id": "snip_1775451334_2396",
+        "nama": "celltocomment",
+        "detail": "Kode yang digunakan untuk mengubah isi sel konten di excel menjadi komen, script merupakan module di visual basic",
+        "lang": "Lainnya",
+        "tag": "excel",
+        "kode": "Sub ContentToComment()\nDim Rng As Range\nDim WorkRng As Range\nOn Error Resume Next\nxTitleId = \"Cell Content to Comment\"\nSet WorkRng = Application.Selection\nSet WorkRng = Application.InputBox(\"Range\", xTitleId, WorkRng.Address, Type:=8)\nFor Each Rng In WorkRng\n    Rng.NoteText Text:=Rng.Value\n    Rng.Value = \"NA\"\nNext\nEnd Sub\n",
+        "createdAt": "2026-04-06T04:55:34+00:00",
+        "updatedAt": "2026-04-06T04:55:34+00:00"
+    },
+    {
+        "id": "snip_1775451268_4005",
+        "nama": "appsheet-rest-api",
+        "detail": "Kode yang digunakan untuk membuat REST API dari Google Sheets dengan menggunakan Google Apps Script",
+        "lang": "Lainnya",
+        "tag": "google-spreadsheet",
+        "kode": "const wbook = SpreadsheetApp.getActive()\n\nfunction doGet() {\n  const sheet = wbook.getSheetByName(\"B\");\n  \/\/B merupakan nama sheet yang digunakan, diganti dengan sheet yang akan digunakan\n  let data = [];\n  const rlen = sheet.getLastRow();\n  const clen = sheet.getLastColumn();\n  const rows = sheet.getRange(1,1,rlen,clen).getValues();\n\n  for(let i = 0; i < rows.length; i++){\n    const dataRow = rows[i];\n    let record = {};\n    for (let j=0; j<clen; j++){\n      record[rows[0][j]] = dataRow[j];\n    }\n\n    if(i > 0){\n      data.push(record);\n    }\n  }\n\n  const response = {\n    \"data\": data\n  }\n\n  return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);\n}",
+        "createdAt": "2026-04-06T04:54:28+00:00",
+        "updatedAt": "2026-04-06T04:54:28+00:00"
+    },
+    {
+        "id": "snip_1775451185_4276",
+        "nama": "commenttocellcontent",
+        "detail": "Kode yang digunakan untuk mengubah komentar di excel menjadi isi sel, script merupakan module di visual basic",
+        "lang": "Lainnya",
+        "tag": "Excel",
+        "kode": "Sub CommentToCell()\n\nDim Rng As Range\n\nDim WorkRng As Range\n\nOn Error Resume Next\n\nxTitleId = \"Comment to Cell Content\"\n\nSet WorkRng = Application.Selection\n\nSet WorkRng = Application.InputBox(\"Range\", xTitleId, WorkRng.Address, Type:=8)\n\nFor Each Rng In WorkRng\n\n    Rng.Value = Rng.CommentThreaded\n    'Rng.Value = Rng.NoteText\n    'Rng.Comment.Delete\n    Rng.CommentThreaded.Delete\n    \nNext\n\nEnd Sub",
+        "createdAt": "2026-04-06T04:53:05+00:00",
+        "updatedAt": "2026-04-06T04:53:05+00:00"
+    },
+    {
+        "id": "snip_1775451104_5153",
+        "nama": "ListAllFormulas",
+        "detail": "Mengambil atau menampilkan semua formula\/rumus yang ada di semua sheet",
+        "lang": "Lainnya",
+        "tag": "excel",
+        "kode": "Sub ListAllFormulas()\n    Dim ws As Worksheet\n    Dim FormulaSheet As Worksheet\n    Dim Cell As Range\n    Dim lRow As Long\n    Dim SheetName As String\n    \n    ' Buat sheet baru untuk daftar rumus\n    On Error Resume Next\n    Application.DisplayAlerts = False\n    Worksheets(\"Daftar_Rumus\").Delete\n    Application.DisplayAlerts = True\n    On Error GoTo 0\n    \n    Set FormulaSheet = Worksheets.Add\n    FormulaSheet.Name = \"Daftar_Rumus\"\n    \n    ' Header\n    With FormulaSheet\n        .Range(\"A1\").Value = \"Nama Sheet\"\n        .Range(\"B1\").Value = \"Alamat Sel\"\n        .Range(\"C1\").Value = \"Rumus\"\n        .Range(\"A1:C1\").Font.Bold = True\n    End With\n    \n    lRow = 2  ' mulai dari baris ke-2\n    \n    ' Loop semua sheet\n    For Each ws In ThisWorkbook.Worksheets\n        If ws.Name <> \"Daftar_Rumus\" Then  ' skip sheet daftar rumus sendiri\n            SheetName = ws.Name\n            \n            ' Cari semua sel yang punya rumus\n            On Error Resume Next\n            For Each Cell In ws.UsedRange.SpecialCells(xlCellTypeFormulas)\n                With FormulaSheet\n                    .Cells(lRow, 1).Value = SheetName\n                    .Cells(lRow, 2).Value = Cell.Address(False, False)\n                    .Cells(lRow, 3).Value = \"'\" & Cell.Formula  ' tambah ' agar tidak dihitung sebagai rumus\n                End With\n                lRow = lRow + 1\n            Next Cell\n            On Error GoTo 0\n        End If\n    Next ws\n    \n    ' Auto fit kolom\n    FormulaSheet.Columns(\"A:C\").AutoFit\n    \n    MsgBox \"Semua rumus telah dikumpulkan di sheet 'Daftar_Rumus'!\", vbInformation\nEnd Sub",
+        "createdAt": "2026-04-06T04:51:44+00:00",
+        "updatedAt": "2026-04-06T04:51:44+00:00"
+    }
+]
