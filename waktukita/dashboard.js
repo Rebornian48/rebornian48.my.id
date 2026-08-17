@@ -2,7 +2,7 @@
   'use strict';
 
   // ---------- theme ----------
-  const THEME_KEY = 'dashboard.theme';
+  const THEME_KEY = 'rebornian.theme';
   const themeBtns = document.querySelectorAll('[data-theme-btn]');
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const savedTheme = localStorage.getItem(THEME_KEY) || (prefersDark ? 'dark' : 'light');
