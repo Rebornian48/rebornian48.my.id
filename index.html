@@ -3,96 +3,300 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rebornian48 — Tools & Projects</title>
+  <title>rebornian48 — Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script>
+    (function(){
+      const saved = localStorage.getItem('rebornian.theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', saved || (prefersDark ? 'dark' : 'light'));
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/theme.css">
   <style>
-    :root {
-      --bg: #f5f2ec; --surface: #fff; --border: #e6dfce; --border-strong: #14213d;
-      --text: #14213d; --muted: #6b6a5e; --accent: #ff3b6b;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root { --bg: #0d1220; --surface: #16203a; --border: #263356; --border-strong: #0b1220;
-              --text: #eef2fb; --muted: #8a97b3; --accent: #ff5c85; }
-    }
     * { box-sizing: border-box; }
     html, body { margin: 0; }
     body {
       font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-      background: var(--bg); color: var(--text);
+      background:
+        radial-gradient(1200px 500px at 90% -10%, var(--bg-2), transparent 60%),
+        radial-gradient(900px 400px at -10% 110%, var(--bg-2), transparent 60%),
+        var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      display: grid; place-items: center;
-      padding: 32px;
       line-height: 1.5;
+      padding: 20px clamp(14px, 3vw, 32px) 40px;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .5s ease, color .5s ease;
     }
-    .wrap { max-width: 720px; width: 100%; text-align: center; }
-    .brand {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 8px 14px 8px 10px;
-      background: var(--surface); border: 1px solid var(--border-strong);
-      border-radius: 999px; box-shadow: 3px 3px 0 var(--border-strong);
-      font-weight: 800; letter-spacing: -0.02em;
+
+    /* ============ nav pill (shared with waktukita) ============ */
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto 40px;
     }
-    .brand span {
-      width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(135deg, #a77bff, #ff3b6b); color: #fff;
-      display: grid; place-items: center; font-size: 14px;
+    .nav-inner {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 10px 14px 10px 18px;
+      box-shadow: var(--shadow-nav);
     }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+    .brand-logo {
+      width: 34px; height: 34px;
+      display: grid; place-items: center;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #a77bff, var(--accent));
+      color: #fff;
+    }
+    .brand-logo svg { width: 18px; height: 18px; }
+    .brand-name { font-weight: 800; letter-spacing: -0.02em; font-size: 18px; }
+    .brand-chip {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      padding: 4px 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-2);
+      border-radius: 999px;
+      color: var(--text);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .brand-chip::before {
+      content: ""; width: 8px; height: 8px; border-radius: 50%;
+      background: #37c47a; box-shadow: 0 0 0 3px rgba(55, 196, 122, .2);
+    }
+    .nav-mid {
+      font-size: 12px; color: var(--muted);
+      font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      text-align: center;
+    }
+    @media (max-width: 720px) { .nav-mid { display: none; } }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .theme-toggle {
+      display: inline-flex;
+      padding: 4px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      gap: 2px;
+    }
+    .theme-toggle button {
+      appearance: none; border: 0;
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: background-color .2s, color .2s;
+    }
+    .theme-toggle button svg { width: 16px; height: 16px; }
+    .theme-toggle button:hover { color: var(--text); }
+    .theme-toggle button[aria-pressed="true"] {
+      background: var(--surface);
+      color: var(--accent);
+      box-shadow: 0 1px 3px var(--ring);
+    }
+
+    /* ============ hero ============ */
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto 40px;
+      padding: 20px 4px;
+      text-align: center;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 var(--border-strong);
+      color: var(--text);
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.8s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 59, 107, .5); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 59, 107, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 59, 107, 0); }
+    }
+
     h1 {
-      font-size: clamp(36px, 6vw, 64px);
-      font-weight: 800; letter-spacing: -0.035em;
+      margin: 20px auto 14px;
+      max-width: 18ch;
+      font-size: clamp(38px, 6vw, 64px);
       line-height: 1.05;
-      margin: 24px 0 12px;
+      letter-spacing: -0.035em;
+      font-weight: 800;
     }
-    h1 em { font-style: normal; color: var(--accent); }
-    p.lead { color: var(--muted); margin: 0 0 32px; font-size: 16px; }
+    h1 .accent { color: var(--accent); }
+    h1 .mark {
+      background: linear-gradient(180deg, transparent 60%, var(--highlight) 60%);
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+    .lead {
+      max-width: 44ch;
+      margin: 0 auto 32px;
+      color: var(--text-soft);
+      font-size: 16px;
+    }
+    .lead b { color: var(--text); font-weight: 700; }
+
+    /* ============ tools grid ============ */
     .tools {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px; text-align: left;
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: clamp(14px, 2vw, 20px);
     }
     .tool {
       background: var(--surface);
       border: 1px solid var(--border-strong);
-      border-radius: 16px;
-      padding: 18px;
+      border-radius: 18px;
+      padding: 22px;
       text-decoration: none;
       color: var(--text);
       box-shadow: 4px 4px 0 var(--border-strong);
-      transition: transform .1s, box-shadow .1s;
-      display: flex; flex-direction: column; gap: 6px;
+      transition: transform .15s, box-shadow .15s;
+      display: flex; flex-direction: column; gap: 8px;
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+    .tool::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--highlight));
     }
     .tool:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--border-strong); }
-    .tool b { font-size: 16px; font-weight: 700; }
-    .tool em { font-style: normal; font-size: 12px; color: var(--muted); }
+    .tool-tag {
+      display: inline-flex; align-self: flex-start;
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      padding: 3px 9px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+    .tool b { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+    .tool em { font-style: normal; font-size: 13px; color: var(--text-soft); line-height: 1.5; }
     .tool span {
-      margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      margin-top: auto; padding-top: 12px;
+      font-size: 12px; font-weight: 700; letter-spacing: .08em;
       color: var(--accent); text-transform: uppercase;
     }
-    footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+
+    /* ============ footer ============ */
+    footer {
+      max-width: 1180px;
+      margin: 48px auto 0;
+      padding: 20px 4px 0;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="brand"><span>⚡</span> rebornian48</div>
-    <h1>Kumpulan tools <em>gratis</em> buat harian.</h1>
-    <p class="lead">Mini-apps yang di-host di satu tempat. Tanpa login, ringan, terbuka.</p>
 
-    <div class="tools">
-      <a class="tool" href="/waktukita/">
-        <b>waktukita</b>
-        <em>Jam lokal · cuaca · jadwal adzan · peta lokasi</em>
-        <span>Buka →</span>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </span>
+        <span class="brand-name">rebornian48</span>
+        <span class="brand-chip">Live</span>
       </a>
-      <a class="tool" href="/choropleth/">
-        <b>choropleth</b>
-        <em>Peta 38 provinsi · upload CSV/Excel · neraca produksi · ekspor SVG/PNG</em>
-        <span>Buka →</span>
-      </a>
+      <div class="nav-mid">Kumpulan mini-apps · rebornian48.my.id</div>
+      <div class="nav-actions">
+        <div class="theme-toggle" role="group" aria-label="Ganti tema">
+          <button type="button" data-theme-btn="light" aria-pressed="false" aria-label="Terang" title="Terang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          </button>
+          <button type="button" data-theme-btn="dark" aria-pressed="false" aria-label="Gelap" title="Gelap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
+  </nav>
 
-    <footer>© <span id="y"></span> rebornian48.my.id</footer>
-  </main>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <section class="hero">
+    <span class="pill"><span class="pulse-dot"></span> Realtime · Tanpa Login</span>
+    <h1>Kumpulan tools <span class="mark">gratis</span> buat <span class="accent">harian</span>.</h1>
+    <p class="lead">
+      Mini-apps yang di-host di satu tempat. Ringan, terbuka,
+      <b>gratis selamanya</b>.
+    </p>
+  </section>
+
+  <div class="tools">
+    <a class="tool" href="/waktukita/">
+      <span class="tool-tag">Utility</span>
+      <b>waktukita</b>
+      <em>Jam lokal · cuaca real-time · jadwal adzan Kemenag RI · peta lokasi Leaflet.</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/choropleth/">
+      <span class="tool-tag">Data Viz</span>
+      <b>choropleth</b>
+      <em>Peta 38 provinsi Indonesia · upload CSV/Excel · neraca produksi · ekspor SVG/PNG.</em>
+      <span>Buka →</span>
+    </a>
+  </div>
+
+  <footer>
+    <div>© <span id="y"></span> rebornian48.my.id · dibangun dengan HTML/CSS/JS statis</div>
+    <div><a href="https://github.com/Rebornian48/rebornian48.my.id" target="_blank" rel="noopener">Kode sumber</a></div>
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+    // theme toggle (matches waktukita/choropleth)
+    (function(){
+      const btns = document.querySelectorAll('[data-theme-btn]');
+      function sync(t){
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('rebornian.theme', t);
+        btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeBtn === t)));
+      }
+      sync(document.documentElement.getAttribute('data-theme') || 'light');
+      btns.forEach(b => b.addEventListener('click', ev => {
+        const t = b.dataset.themeBtn;
+        if (document.documentElement.getAttribute('data-theme') === t) return;
+        if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.style.setProperty('--tx', (ev.clientX/innerWidth*100)+'%');
+          document.documentElement.style.setProperty('--ty', (ev.clientY/innerHeight*100)+'%');
+          document.startViewTransition(() => sync(t));
+        } else {
+          document.documentElement.classList.add('theme-anim');
+          setTimeout(() => document.documentElement.classList.remove('theme-anim'), 600);
+          sync(t);
+        }
+      }));
+    })();
+  </script>
 </body>
 </html>

@@ -280,17 +280,35 @@ function getAllMapValues() {
 // ═══════════════════════════════════════════════════════
 // MAP
 // ═══════════════════════════════════════════════════════
+const TILES = {
+  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+};
+let tileLayer = null;
+
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') || 'light';
+}
+
 function initMap() {
   map = L.map('map', {
     center: [-2.5, 118], zoom: 5, minZoom: 4, maxZoom: 10,
     zoomControl: false, attributionControl: false
   });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  tileLayer = L.tileLayer(TILES[currentTheme()] || TILES.light,
     {subdomains:'abcd',maxZoom:19}).addTo(map);
   L.control.zoom({position:'topright'}).addTo(map);
   L.control.attribution({position:'bottomright',prefix:false})
-    .addAttribution('&copy; <a href="https://carto.com" style="color:#60a5fa">CartoDB</a>').addTo(map);
+    .addAttribution('&copy; <a href="https://carto.com">CartoDB</a> · OpenStreetMap').addTo(map);
 }
+
+// exposed for theme toggle in HTML
+window.applyMapTiles = function(theme) {
+  if (!map || !tileLayer) return;
+  map.removeLayer(tileLayer);
+  tileLayer = L.tileLayer(TILES[theme] || TILES.light,
+    {subdomains:'abcd',maxZoom:19}).addTo(map);
+};
 
 function detectNameKey(features) {
   if (!features || !features.length) return null;
@@ -323,12 +341,12 @@ async function loadAndRenderMap() {
   if (!geoJsonData) {
     showToast('Gagal memuat GeoJSON.', 'error');
     $('#loadingOverlay').hide();
-    $('#mapStatus').text('Gagal').css('color','#fca5a5');
+    $('#mapStatus').text('Gagal').removeClass('ok').addClass('err');
     return;
   }
   detectedNameKey = detectNameKey(geoJsonData.features);
   renderGeoLayer();
-  $('#mapStatus').text('Siap ✓ · ' + geoJsonData.features.length + ' provinsi').css('color','#86efac');
+  $('#mapStatus').text('Siap · ' + geoJsonData.features.length + ' provinsi').removeClass('err').addClass('ok');
   showToast('Peta berhasil dimuat!', 'success');
   $('#loadingOverlay').hide();
 }
@@ -369,10 +387,11 @@ function styleFeature(f, minVal, maxVal) {
   const fill = (val !== undefined && val !== null)
     ? getColorForValue(val, minVal, maxVal)
     : colorNoData;
+  const stroke = getComputedStyle(document.documentElement).getPropertyValue('--border-strong').trim() || '#14213d';
   return {
     fillColor: fill,
     fillOpacity: (val !== undefined && val !== null) ? .83 : .28,
-    color: '#0c1a2e', weight: .9, opacity: 1
+    color: stroke, weight: .9, opacity: 1
   };
 }
 
@@ -382,7 +401,8 @@ function hoverFeature(e, feature) {
   const unit = $('#dataUnit').val();
   const label = $('#dataLabel').val() || 'Nilai';
 
-  e.target.setStyle({weight:2.5, color:'#60a5fa', fillOpacity:.93});
+  const hoverStroke = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff3b6b';
+  e.target.setStyle({weight:2.5, color: hoverStroke, fillOpacity:.93});
   e.target.bringToFront();
 
   let html = `<div class="info-tooltip"><div class="prov-name">${matched || name}</div>`;

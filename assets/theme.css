@@ -1,0 +1,106 @@
+/* ============================================
+   rebornian48 — shared design tokens
+   Font: Plus Jakarta Sans + JetBrains Mono
+   Accent: pink-red #ff3b6b
+   Modes: light (default) + dark ([data-theme="dark"])
+   ============================================ */
+
+:root {
+  --bg: #f5f2ec;
+  --bg-2: #efeadf;
+  --surface: #ffffff;
+  --surface-2: #f6f2e9;
+  --border: #e6dfce;
+  --border-strong: #14213d;
+  --text: #14213d;
+  --text-soft: #3b4a6b;
+  --muted: #6b6a5e;
+  --accent: #ff3b6b;
+  --accent-ink: #ffffff;
+  --accent-soft: #ffe1e9;
+  --highlight: #ffe66b;
+  --highlight-soft: #fff5b8;
+  --good: #4b7a3a;
+  --warn: #b08508;
+  --crit: #a63b2a;
+  --ring: rgba(20, 33, 61, .12);
+  --shadow-sm: 0 1px 0 rgba(20, 33, 61, .05);
+  --shadow: 0 1px 2px rgba(20, 33, 61, .04), 0 10px 30px rgba(20, 33, 61, .06);
+  --shadow-nav: 0 1px 0 rgba(20, 33, 61, .04), 0 12px 40px rgba(20, 33, 61, .08);
+  --pop: 6px 6px 0 var(--border-strong);
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d1220;
+  --bg-2: #121a2e;
+  --surface: #16203a;
+  --surface-2: #1c2947;
+  --border: #263356;
+  --border-strong: #0b1220;
+  --text: #eef2fb;
+  --text-soft: #c2ccdf;
+  --muted: #8a97b3;
+  --accent: #ff5c85;
+  --accent-ink: #0d1220;
+  --accent-soft: #3a1b2a;
+  --highlight: #ffd447;
+  --highlight-soft: #4a3a10;
+  --good: #6fd39a;
+  --warn: #f2c268;
+  --crit: #ef7a7a;
+  --ring: rgba(238, 242, 251, .12);
+  --shadow-sm: 0 1px 0 rgba(0, 0, 0, .35);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .45);
+  --shadow-nav: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 40px rgba(0, 0, 0, .5);
+  --pop: 6px 6px 0 #05080f;
+}
+
+/* Fallback system pref when no explicit theme set */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0d1220; --bg-2: #121a2e; --surface: #16203a; --surface-2: #1c2947;
+    --border: #263356; --border-strong: #0b1220; --text: #eef2fb; --text-soft: #c2ccdf;
+    --muted: #8a97b3; --accent: #ff5c85; --accent-ink: #0d1220; --accent-soft: #3a1b2a;
+    --highlight: #ffd447; --highlight-soft: #4a3a10;
+    --good: #6fd39a; --warn: #f2c268; --crit: #ef7a7a;
+    --ring: rgba(238, 242, 251, .12);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .45);
+    --shadow-nav: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 40px rgba(0, 0, 0, .5);
+    --pop: 6px 6px 0 #05080f;
+  }
+}
+
+/* ============ smooth theme transition ============ */
+html.theme-anim,
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition:
+    background-color .5s ease,
+    background .5s ease,
+    color .5s ease,
+    border-color .5s ease,
+    fill .5s ease,
+    stroke .5s ease,
+    box-shadow .5s ease !important;
+}
+
+/* View Transitions API — circle wipe from toggle */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+@keyframes theme-clip {
+  from { clip-path: circle(0% at var(--tx, 90%) var(--ty, 5%)); }
+  to   { clip-path: circle(150% at var(--tx, 90%) var(--ty, 5%)); }
+}
+::view-transition-new(root) {
+  animation: theme-clip .6s cubic-bezier(.22, 1, .36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-anim, html.theme-anim * { transition: none !important; animation: none !important; }
+}
