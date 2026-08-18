@@ -8,14 +8,15 @@ Monorepo static site untuk `rebornian48.my.id` di Hostinger shared hosting.
 │   ├── theme.css       # DESIGN TOKENS SHARED (light + dark + view transition)
 │   ├── brand.css       # brand-nav (rebornian48 / app · Live · toggle · Semua Tools)
 │   ├── brand.js        # auto-inject brand-nav + sync theme lintas app
+│   ├── waktukita.css   # style app-specific waktukita
+│   ├── waktukita.js    # logic app-specific waktukita (jam, cuaca, adzan, peta)
+│   ├── choropleth.js   # logic app-specific choropleth (peta + parsing data)
 │   └── json/           # geojson besar (exclude dari git, upload manual ke server)
 ├── waktukita/          # rebornian48.my.id/waktukita/
-│   ├── index.html      # Jam · cuaca · adzan · peta lokasi
-│   ├── styles.css
-│   └── dashboard.js
+│   └── index.html      # Jam · cuaca · adzan · peta lokasi
 ├── choropleth/         # rebornian48.my.id/choropleth/
 │   ├── index.html      # Peta 38 provinsi + upload CSV/Excel
-│   └── choropleth.js
+│   └── styles.css      # style app-specific choropleth
 ├── geocalc/            # rebornian48.my.id/geocalc/
 │   └── index.html      # Kalkulator geometri 2D & 3D
 ├── basajawatools/      # rebornian48.my.id/basajawatools/
@@ -73,7 +74,7 @@ Isi `theme.css`: variabel CSS `--bg`, `--bg-2`, `--surface`, `--surface-2`, `--t
 </script>
 ```
 
-**View transition circle-wipe** saat toggle — pola di `waktukita/dashboard.js` `switchTheme()` / `choropleth/index.html` bagian bawah.
+**View transition circle-wipe** saat toggle — pola di `assets/waktukita.js` `switchTheme()` / `choropleth/index.html` bagian bawah.
 
 ## Mini-apps
 
