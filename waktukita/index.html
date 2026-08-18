@@ -13,32 +13,31 @@
 </head>
 <body>
 
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="nav-brand">
-        <span class="brand-logo" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </span>
-        <span class="brand-name">waktukita</span>
-        <span class="brand-chip">Live</span>
+  <nav class="brand-nav">
+    <a class="brand" href="/">
+      <span class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </span>
+      <span class="brand-name">rebornian48</span>
+      <span class="brand-slash">/</span>
+      <span class="brand-app">waktukita</span>
+    </a>
+    <div class="nav-mid">
+      <span class="brand-chip">Live</span>
+    </div>
+    <div class="nav-actions">
+      <div class="theme-toggle" role="group" aria-label="Ganti tema">
+        <button type="button" data-theme-btn="light" aria-pressed="true" aria-label="Tema terang" title="Terang">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" data-theme-btn="dark" aria-pressed="false" aria-label="Tema gelap" title="Gelap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
       </div>
-      <ul class="nav-links">
-        <li><a href="#waktu">Waktu</a></li>
-        <li><a href="#cuaca">Cuaca</a></li>
-        <li><a href="#adzan">Adzan</a></li>
-        <li><a href="#lokasi">Lokasi</a></li>
-      </ul>
-      <div class="nav-actions">
-        <div class="theme-toggle" role="group" aria-label="Ganti tema">
-          <button type="button" data-theme-btn="light" aria-pressed="true" aria-label="Tema terang" title="Terang">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-          </button>
-          <button type="button" data-theme-btn="dark" aria-pressed="false" aria-label="Tema gelap" title="Gelap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
-        </div>
-        <button type="button" class="cta" id="refreshBtn">Perbarui →</button>
-      </div>
+      <a class="back-link" href="/">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Semua Tools
+      </a>
     </div>
   </nav>
 
