@@ -5,10 +5,16 @@ Repo ini adalah **monorepo statis** — root = landing site, tiap subfolder = mi
 ```
 rebornian48/
 ├── index.html                 → https://rebornian48.my.id/
+├── assets/
+│   ├── theme.css              # tokens shared
+│   ├── brand.css, brand.js    # brand-nav auto-inject
+│   ├── waktukita.css, waktukita.js
+│   └── choropleth.js
 ├── waktukita/
-│   ├── index.html             → https://rebornian48.my.id/waktukita/
-│   ├── styles.css
-│   └── dashboard.js
+│   └── index.html             → https://rebornian48.my.id/waktukita/
+├── choropleth/
+│   ├── index.html             → https://rebornian48.my.id/choropleth/
+│   └── styles.css
 └── (mini-app baru)/           → https://rebornian48.my.id/nama-app/
 ```
 
@@ -65,7 +71,7 @@ Manual deploy kalau webhook gagal: hPanel Git panel → **Manage** → **Deploy 
 
 ## 4. Catatan penting
 
-- **Semua path relatif** di HTML — `styles.css`, `dashboard.js`. Aman dipindah subfolder.
+- **Shared assets** pakai absolute path `/assets/…` (theme.css, brand.js, waktukita.css, dll). Per-app HTML tinggal load via `<link href="/assets/nama.css">`.
 - **CDN eksternal** (Leaflet, Google Fonts, API cuaca/adzan) pakai HTTPS absolut — aman.
 - **HTTPS**: Hostinger kasih SSL gratis (Let's Encrypt) via hPanel → SSL. Auto-renew.
 - **`.gitignore`** exclude `.claude/`, `docs/`, `tailadmin-template/` biar gak ke-push (bukan kode produksi).
