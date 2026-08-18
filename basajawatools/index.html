@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Basa Jawa Tools</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Javanese&family=Plus+Jakarta+Sans:wght@400;500;700;800&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+Javanese&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/theme.css">
 <link rel="stylesheet" href="/assets/brand.css">
 <script>
 (function(){
@@ -14,68 +17,27 @@
 })();
 </script>
 <style>
-  :root {
-    --bg: #f5ead8;
-    --surface: #fffaf0;
-    --surface2: #ede0c8;
-    --border: #c9b48a;
-    --gold: #a8802a;
-    --gold-light: #c9983a;
-    --gold-dim: #7a5a20;
-    --cream: #2a1f14;
-    --cream-dim: #4a3a2a;
-    --red: #8b3a2a;
-    --red-bright: #c4543e;
-    --green: #2a5a3a;
-    --green-bright: #3d8a58;
-    --blue: #1e3a5a;
-    --blue-bright: #2e6a9a;
-    --text: #2a1f14;
-    --text-dim: #7a6850;
-  }
-
-  [data-theme="dark"] {
-    --bg: #0d0a07;
-    --surface: #1a1410;
-    --surface2: #251c14;
-    --border: #3d2e1e;
-    --gold: #c9983a;
-    --gold-light: #e8b84a;
-    --gold-dim: #7a5a20;
-    --cream: #f5ead8;
-    --cream-dim: #b8a88a;
-    --text: #e8d8b8;
-    --text-dim: #8a7a60;
-  }
-
+  /* basajawatools — waktukita design system */
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(1200px 500px at 90% -10%, var(--bg-2), transparent 60%),
+      radial-gradient(900px 400px at -10% 110%, var(--bg-2), transparent 60%),
+      var(--bg);
     color: var(--text);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-  }
-
-  /* Batik-inspired background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      radial-gradient(ellipse 120px 120px at 15% 20%, rgba(201,152,58,0.04) 0%, transparent 70%),
-      radial-gradient(ellipse 80px 80px at 85% 70%, rgba(201,152,58,0.03) 0%, transparent 70%),
-      repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(201,152,58,0.015) 40px, rgba(201,152,58,0.015) 41px),
-      repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(201,152,58,0.01) 40px, rgba(201,152,58,0.01) 41px);
-    pointer-events: none;
-    z-index: 0;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    transition: background-color .5s ease, color .5s ease;
   }
 
   .container {
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 clamp(14px, 3vw, 24px);
     position: relative;
     z-index: 1;
   }
@@ -84,7 +46,7 @@
   header {
     padding: 48px 0 32px;
     text-align: center;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px dashed var(--border);
     position: relative;
   }
 
@@ -96,94 +58,85 @@
     transform: translateX(-50%);
     background: var(--bg);
     padding: 0 16px;
-    color: var(--gold);
+    color: var(--accent);
     font-size: 14px;
   }
 
   .aksara-deco {
     font-family: 'Noto Serif Javanese', serif;
-    font-size: 28px;
-    color: var(--gold-dim);
+    font-size: 30px;
+    color: var(--accent);
     letter-spacing: 8px;
     display: block;
-    margin-bottom: 16px;
-    opacity: 0.7;
+    margin-bottom: 18px;
+    opacity: 0.85;
   }
 
   h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 5vw, 48px);
-    font-weight: 700;
-    color: var(--cream);
-    letter-spacing: -0.5px;
-    line-height: 1.1;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: clamp(32px, 5.5vw, 56px);
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.035em;
+    line-height: 1.02;
   }
 
   h1 em {
-    color: var(--gold);
-    font-style: italic;
+    color: var(--accent);
+    font-style: normal;
+    background: linear-gradient(180deg, transparent 60%, var(--highlight) 60%);
+    padding: 0 6px;
+    border-radius: 4px;
   }
 
   .subtitle {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-dim);
-    letter-spacing: 3px;
+    margin-top: 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px; font-weight: 700;
+    color: var(--muted);
+    letter-spacing: .18em;
     text-transform: uppercase;
   }
 
   /* Mode tabs */
   .mode-tabs {
     display: flex;
-    gap: 0;
+    gap: 8px;
     margin: 40px 0 0;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
+    flex-wrap: wrap;
   }
 
   .tab {
     flex: 1;
+    min-width: 140px;
     padding: 14px 12px;
     background: var(--surface);
-    border: none;
-    color: var(--text-dim);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1.5px;
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .08em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.2s;
-    border-right: 1px solid var(--border);
-    position: relative;
+    box-shadow: 3px 3px 0 var(--border-strong);
+    transition: transform .1s, box-shadow .1s, background .15s, color .15s;
   }
 
-  .tab:last-child { border-right: none; }
-
-  .tab:hover {
-    background: var(--surface2);
-    color: var(--cream-dim);
-  }
+  .tab:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--border-strong); }
 
   .tab.active {
-    background: var(--surface2);
-    color: var(--gold);
-  }
-
-  .tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gold);
+    background: var(--accent);
+    color: var(--accent-ink);
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--border-strong);
   }
 
   .tab-icon {
     display: block;
-    font-size: 18px;
-    margin-bottom: 4px;
+    font-size: 20px;
+    margin-bottom: 6px;
   }
 
   /* Main panel */
@@ -205,16 +158,27 @@
   }
 
   .panel-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--cream);
-    margin-bottom: 6px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: clamp(22px, 3vw, 28px);
+    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
   }
 
   .panel-desc {
-    font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.7;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+  }
+  .panel-desc em {
+    font-style: normal;
+    color: var(--accent);
+    font-family: "JetBrains Mono", monospace;
+    font-size: .92em;
+    background: var(--accent-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
   }
 
   /* IO Area */
@@ -234,61 +198,65 @@
 
   .io-box label {
     display: block;
+    font-family: "JetBrains Mono", monospace;
     font-size: 10px;
-    letter-spacing: 2px;
+    font-weight: 700;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    color: var(--gold-dim);
+    color: var(--muted);
     margin-bottom: 10px;
   }
 
   textarea, .output-box {
     width: 100%;
-    min-height: 160px;
+    min-height: 170px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 14px;
     padding: 16px;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: "JetBrains Mono", monospace;
     font-size: 14px;
     color: var(--text);
     resize: vertical;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     line-height: 1.6;
   }
 
   textarea:focus {
-    border-color: var(--gold-dim);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
 
   textarea::placeholder {
-    color: var(--text-dim);
-    opacity: 0.5;
+    color: var(--muted);
+    opacity: 0.7;
   }
 
   .output-box {
-    min-height: 160px;
+    min-height: 170px;
     cursor: default;
     user-select: text;
     white-space: pre-wrap;
     word-break: break-word;
+    background: var(--surface-2);
   }
 
   .output-box.aksara {
     font-family: 'Noto Serif Javanese', serif;
-    font-size: 22px;
+    font-size: 24px;
     line-height: 2.2;
     letter-spacing: 2px;
-    color: var(--gold-light);
+    color: var(--accent);
   }
 
   .output-box.walikan {
     font-size: 16px;
-    color: var(--cream);
+    color: var(--text);
   }
 
   .output-box.empty {
-    color: var(--text-dim);
+    color: var(--muted);
     font-style: italic;
     font-size: 12px;
   }
@@ -298,13 +266,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-top: 32px;
+    padding-top: 34px;
     gap: 12px;
   }
 
   .arrow-icon {
-    color: var(--gold-dim);
-    font-size: 20px;
+    color: var(--accent);
+    font-size: 22px;
     animation: pulse 2s ease-in-out infinite;
   }
 
@@ -317,48 +285,44 @@
   .controls {
     margin-top: 20px;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
     align-items: center;
   }
 
   .btn {
-    padding: 12px 28px;
-    border: 1px solid var(--gold-dim);
-    background: transparent;
-    color: var(--gold);
-    font-family: 'IBM Plex Mono', monospace;
+    padding: 10px 20px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 700;
     font-size: 12px;
-    letter-spacing: 2px;
+    letter-spacing: .06em;
     text-transform: uppercase;
     cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 var(--border-strong);
+    transition: transform .1s, box-shadow .1s;
   }
 
-  .btn:hover {
-    background: var(--gold-dim);
-    color: var(--bg);
-  }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--border-strong); }
+  .btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--border-strong); }
 
   .btn.primary {
-    background: var(--gold-dim);
-    color: var(--bg);
-  }
-
-  .btn.primary:hover {
-    background: var(--gold);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
 
   .btn.small {
-    padding: 8px 16px;
+    padding: 8px 14px;
     font-size: 10px;
   }
 
   /* Options */
   .options-row {
     display: flex;
-    gap: 16px;
+    gap: 10px;
     margin-top: 16px;
     flex-wrap: wrap;
   }
@@ -367,28 +331,30 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    color: var(--cream-dim);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-soft);
     cursor: pointer;
-    padding: 6px 14px;
+    padding: 8px 14px;
     border: 1px solid var(--border);
-    border-radius: 2px;
-    transition: all 0.2s;
+    border-radius: 999px;
+    background: var(--surface);
+    transition: border-color .15s, background .15s, color .15s;
   }
 
   .radio-label:hover {
-    border-color: var(--gold-dim);
-    color: var(--gold);
+    border-color: var(--border-strong);
+    color: var(--text);
   }
 
   .radio-label input {
-    accent-color: var(--gold);
+    accent-color: var(--accent);
   }
 
   .radio-label.selected {
-    border-color: var(--gold-dim);
-    color: var(--gold);
-    background: rgba(201,152,58,0.05);
+    border-color: var(--border-strong);
+    color: var(--accent);
+    background: var(--accent-soft);
   }
 
   /* Copy button overlay */
@@ -398,19 +364,21 @@
 
   .copy-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 4px 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 1px;
+    top: 10px;
+    right: 10px;
+    padding: 5px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
     text-transform: uppercase;
     cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
+    border-radius: 999px;
+    box-shadow: 2px 2px 0 var(--border-strong);
+    transition: transform .1s, box-shadow .1s;
     opacity: 0;
   }
 
@@ -418,15 +386,11 @@
     opacity: 1;
   }
 
-  .copy-btn:hover {
-    background: var(--gold-dim);
-    color: var(--bg);
-    border-color: var(--gold-dim);
-  }
+  .copy-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--border-strong); }
 
   .copy-btn.copied {
-    color: var(--green-bright);
-    border-color: var(--green-bright);
+    background: var(--good);
+    color: #fff;
     opacity: 1;
   }
 
@@ -436,21 +400,30 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
     margin-top: 48px;
-    padding-top: 48px;
-    border-top: 1px solid var(--border);
+    padding-top: 40px;
+    border-top: 1px dashed var(--border);
   }
 
   .info-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: 16px;
     padding: 20px;
+    box-shadow: var(--shadow);
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+  }
+  .info-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: 0 1px 2px var(--ring), 0 14px 30px var(--ring);
   }
 
   .info-card h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
     font-size: 15px;
-    color: var(--gold);
+    color: var(--text);
+    letter-spacing: -0.01em;
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -458,34 +431,34 @@
   }
 
   .info-card p {
-    font-size: 11px;
-    color: var(--text-dim);
-    line-height: 1.7;
+    font-size: 12px;
+    color: var(--text-soft);
+    line-height: 1.6;
   }
 
   /* Footer */
   footer {
     padding: 32px 0;
     text-align: center;
-    border-top: 1px solid var(--border);
+    border-top: 1px dashed var(--border);
     margin-top: 48px;
   }
 
   footer p {
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-    line-height: 2;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .04em;
+    line-height: 1.8;
   }
 
   footer a {
-    color: var(--gold-dim);
+    color: var(--accent);
     text-decoration: none;
+    font-weight: 700;
   }
 
-  footer a:hover {
-    color: var(--gold);
-  }
+  footer a:hover { text-decoration: underline; }
 
   /* Divider */
   .divider {
@@ -497,24 +470,31 @@
   /* Badge */
   .badge {
     display: inline-block;
-    padding: 2px 8px;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    font-size: 9px;
-    letter-spacing: 1.5px;
+    padding: 3px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
     text-transform: uppercase;
     vertical-align: middle;
     margin-left: 8px;
+    background: var(--surface);
   }
 
-  .badge.ngalam { color: var(--red-bright); }
-  .badge.dagadu { color: var(--blue-bright); }
-  .badge.aksara { color: var(--gold); }
+  .badge.ngalam { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+  .badge.dagadu { color: var(--warn); background: var(--highlight-soft); border-color: transparent; }
+  .badge.aksara { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); border-color: transparent; }
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--surface); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface-2); }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; opacity: .4; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -657,8 +637,8 @@
     </div>
 
     <div class="divider"></div>
-    <div style="font-size:11px; color:var(--text-dim); line-height:2">
-      <strong style="color:var(--cream-dim)">Panduan penulisan:</strong> Gunakan aksara latin standar.
+    <div style="font-size:12px; color:var(--text-soft); line-height:1.7">
+      <strong style="color:var(--text);font-weight:700">Panduan penulisan:</strong> Gunakan aksara latin standar.
       Konsonan rangkap: "ny", "ng", "th", "dh". Vokal: a, i, u, e, o. Pangkon (konsonan mati) otomatis ditambah.
     </div>
   </div>
