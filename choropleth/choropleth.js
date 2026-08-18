@@ -280,35 +280,29 @@ function getAllMapValues() {
 // ═══════════════════════════════════════════════════════
 // MAP
 // ═══════════════════════════════════════════════════════
-const TILES = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-};
 let tileLayer = null;
-
-function currentTheme() {
-  return document.documentElement.getAttribute('data-theme') || 'light';
+function currentTileUrl() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+  return isDark
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 }
-
 function initMap() {
   map = L.map('map', {
     center: [-2.5, 118], zoom: 5, minZoom: 4, maxZoom: 10,
     zoomControl: false, attributionControl: false
   });
-  tileLayer = L.tileLayer(TILES[currentTheme()] || TILES.light,
-    {subdomains:'abcd',maxZoom:19}).addTo(map);
+  tileLayer = L.tileLayer(currentTileUrl(), {subdomains:'abcd',maxZoom:19}).addTo(map);
   L.control.zoom({position:'topright'}).addTo(map);
   L.control.attribution({position:'bottomright',prefix:false})
-    .addAttribution('&copy; <a href="https://carto.com">CartoDB</a> · OpenStreetMap').addTo(map);
+    .addAttribution('&copy; <a href="https://carto.com" style="color:var(--accent)">CartoDB</a>').addTo(map);
 }
-
-// exposed for theme toggle in HTML
-window.applyMapTiles = function(theme) {
-  if (!map || !tileLayer) return;
-  map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(TILES[theme] || TILES.light,
-    {subdomains:'abcd',maxZoom:19}).addTo(map);
-};
+new MutationObserver(() => {
+  if (!tileLayer) return;
+  tileLayer.setUrl(currentTileUrl());
+  if (typeof renderGeoLayer === 'function' && geoLayer) renderGeoLayer();
+}).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
 
 function detectNameKey(features) {
   if (!features || !features.length) return null;
@@ -341,12 +335,12 @@ async function loadAndRenderMap() {
   if (!geoJsonData) {
     showToast('Gagal memuat GeoJSON.', 'error');
     $('#loadingOverlay').hide();
-    $('#mapStatus').text('Gagal').removeClass('ok').addClass('err');
+    $('#mapStatus').text('Gagal').css('color','#fca5a5');
     return;
   }
   detectedNameKey = detectNameKey(geoJsonData.features);
   renderGeoLayer();
-  $('#mapStatus').text('Siap · ' + geoJsonData.features.length + ' provinsi').removeClass('err').addClass('ok');
+  $('#mapStatus').text('Siap ✓ · ' + geoJsonData.features.length + ' provinsi').css('color','#86efac');
   showToast('Peta berhasil dimuat!', 'success');
   $('#loadingOverlay').hide();
 }
@@ -387,12 +381,15 @@ function styleFeature(f, minVal, maxVal) {
   const fill = (val !== undefined && val !== null)
     ? getColorForValue(val, minVal, maxVal)
     : colorNoData;
-  const stroke = getComputedStyle(document.documentElement).getPropertyValue('--border-strong').trim() || '#14213d';
   return {
     fillColor: fill,
     fillOpacity: (val !== undefined && val !== null) ? .83 : .28,
-    color: stroke, weight: .9, opacity: 1
+    color: themeColor('--border-strong') || '#14213d', weight: .9, opacity: 1
   };
+}
+
+function themeColor(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function hoverFeature(e, feature) {
@@ -401,14 +398,13 @@ function hoverFeature(e, feature) {
   const unit = $('#dataUnit').val();
   const label = $('#dataLabel').val() || 'Nilai';
 
-  const hoverStroke = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff3b6b';
-  e.target.setStyle({weight:2.5, color: hoverStroke, fillOpacity:.93});
+  e.target.setStyle({weight:2.5, color: themeColor('--accent') || '#ff3b6b', fillOpacity:.93});
   e.target.bringToFront();
 
   let html = `<div class="info-tooltip"><div class="prov-name">${matched || name}</div>`;
   if (matched) {
     const region = PROV_REGION[matched] || '—';
-    html += `<div style="font-size:10px;color:#475569;margin-bottom:6px;">${region}</div>`;
+    html += `<div style="font-size:10px;color:var(--muted);margin-bottom:6px;">${region}</div>`;
     if (appMode === 'tunggal') {
       const val = provinceVal[matched];
       const natTotal = getTotalNational('val');
@@ -417,7 +413,7 @@ function hoverFeature(e, feature) {
         html += `<div class="tt-row"><span class="tt-label">${label}</span><span class="tt-val">${fmtNum(val)}${unit?' '+unit:''}</span></div>`;
         html += `<div class="tt-row"><span class="tt-label">% Nasional</span><span class="tt-pct tt-pos">${pct !== null ? pct.toFixed(2)+'%' : '—'}</span></div>`;
       } else {
-        html += `<div style="color:#64748b;font-style:italic;font-size:11px;">Tidak ada data</div>`;
+        html += `<div style="color:var(--muted);font-style:italic;font-size:11px;">Tidak ada data</div>`;
       }
     } else {
       const {prod, need, neraca, pct} = getNeracaObj(matched);
@@ -433,11 +429,11 @@ function hoverFeature(e, feature) {
           html += `<div class="tt-row"><span class="tt-label">% Neraca</span><span class="tt-pct ${cls}">${fmtPct(pct)}</span></div>`;
         }
       } else {
-        html += `<div style="color:#64748b;font-style:italic;font-size:11px;">Tidak ada data</div>`;
+        html += `<div style="color:var(--muted);font-style:italic;font-size:11px;">Tidak ada data</div>`;
       }
     }
   } else {
-    html += `<div style="color:#64748b;font-style:italic;font-size:11px;">Provinsi tidak dikenali</div>`;
+    html += `<div style="color:var(--muted);font-style:italic;font-size:11px;">Provinsi tidak dikenali</div>`;
   }
   html += '</div>';
 
@@ -485,7 +481,7 @@ function renderClassColorsList(n) {
 function updateLegend(minVal, maxVal) {
   const unit = $('#dataUnit').val();
   if (getAllMapValues().length === 0) {
-    $('#legendContent').html('<div style="font-size:11px;color:#475569;font-style:italic;">Muat data untuk melihat legenda</div>');
+    $('#legendContent').html('<div style="font-size:11px;color:var(--muted);font-style:italic;">Muat data untuk melihat legenda</div>');
     return;
   }
   const breaks = getBreaks(minVal, maxVal);
@@ -498,7 +494,7 @@ function updateLegend(minVal, maxVal) {
     const lo = breaks[i], hi = breaks[i+1];
     html += `<div class="legend-item"><div class="legend-swatch" style="background:${color};"></div><span>${fmtNum(lo)}${unit?' '+unit:''} &ndash; ${fmtNum(hi)}${unit?' '+unit:''}</span></div>`;
   }
-  html += `<div class="legend-item" style="margin-top:7px;padding-top:7px;border-top:1px solid #1e3a5f;"><div class="legend-swatch" style="background:${colorNoData};border:1px solid #1e3a5f;"></div><span style="color:#475569;">Tidak ada data</span></div>`;
+  html += `<div class="legend-item legend-nodata-row"><div class="legend-swatch" style="background:${colorNoData};"></div><span>Tidak ada data</span></div>`;
   $('#legendContent').html(html);
   if (colorMode === 'perclass') renderClassColorsList(n);
 }
@@ -521,7 +517,7 @@ function updateMapLegendOverlay() {
     const lo = breaks[i], hi = breaks[i+1];
     html += `<div class="leg-row"><div class="leg-swatch" style="background:${color};"></div><span>${fmtNum(lo)}${unit?' '+unit:''} – ${fmtNum(hi)}${unit?' '+unit:''}</span></div>`;
   }
-  html += `<div class="leg-row" style="margin-top:5px;padding-top:5px;border-top:1px solid #1e3a5f;"><div class="leg-swatch" style="background:${colorNoData};border:1px solid #1e3a5f;"></div><span style="color:#475569;">Tidak ada data</span></div>`;
+  html += `<div class="leg-row leg-nodata-row"><div class="leg-swatch" style="background:${colorNoData};"></div><span>Tidak ada data</span></div>`;
   $('#mapLegendItems').html(html);
   $('#mapLegendOverlay').removeClass('hidden');
 }
@@ -578,19 +574,19 @@ function rebuildTable() {
 
   Object.entries(REGIONS).forEach(([reg, provs]) => {
     provs.forEach(p => {
-      let tr = `<tr><td class="mono" style="color:#475569;font-size:10px;">${num++}</td><td style="color:#e2e8f0;">${p}</td><td style="color:#64748b;font-size:11px;">${reg}</td>`;
+      let tr = `<tr><td class="mono dim-num">${num++}</td><td>${p}</td><td class="muted-cell" style="font-size:11px;">${reg}</td>`;
       if (appMode === 'tunggal') {
         const v = provinceVal[p] ?? null;
         const pct = (v !== null && natVal) ? ((v/natVal)*100) : null;
-        tr += `<td class="mono">${v!==null ? fmtNum(v) : '<span style="color:#475569;">—</span>'}</td>`;
+        tr += `<td class="mono">${v!==null ? fmtNum(v) : '<span class="muted-cell">—</span>'}</td>`;
         tr += `<td class="mono ${pct!==null?'pct-pos':''}">${pct!==null ? pct.toFixed(2)+'%' : '—'}</td>`;
       } else {
         const {prod, need, neraca, pct} = getNeracaObj(p);
         const nc = neraca!==null ? (neraca>0?'surplus':neraca<0?'deficit':'') : '';
         const pc = pct!==null ? (pct>0?'pct-pos':pct<0?'pct-neg':'pct-zero') : '';
-        tr += `<td class="mono">${prod!==null ? fmtNum(prod) : '<span style="color:#475569;">—</span>'}</td>`;
-        tr += `<td class="mono">${need!==null ? fmtNum(need) : '<span style="color:#475569;">—</span>'}</td>`;
-        tr += `<td class="mono ${nc}">${neraca!==null ? fmtNum(neraca) : '<span style="color:#475569;">—</span>'}</td>`;
+        tr += `<td class="mono">${prod!==null ? fmtNum(prod) : '<span class="muted-cell">—</span>'}</td>`;
+        tr += `<td class="mono">${need!==null ? fmtNum(need) : '<span class="muted-cell">—</span>'}</td>`;
+        tr += `<td class="mono ${nc}">${neraca!==null ? fmtNum(neraca) : '<span class="muted-cell">—</span>'}</td>`;
         tr += `<td class="mono ${pc}">${pct!==null ? fmtPct(pct) : '—'}</td>`;
       }
       tr += '</tr>';
@@ -745,11 +741,11 @@ $('#csvUpload').on('change', function(e) {
 });
 
 $('.upload-area')
-  .on('dragover', e => { e.preventDefault(); $(e.currentTarget).css('border-color','#ff3b6b'); })
-  .on('dragleave', e => $(e.currentTarget).css('border-color','#1e3a5f'))
+  .on('dragover', e => { e.preventDefault(); $(e.currentTarget).css('border-color','var(--accent)'); })
+  .on('dragleave', e => $(e.currentTarget).css('border-color',''))
   .on('drop', function(e) {
     e.preventDefault();
-    $(this).css('border-color','#1e3a5f');
+    $(this).css('border-color','');
     const file = e.originalEvent.dataTransfer.files[0];
     if (!file) return;
     Papa.parse(file, {header:true, skipEmptyLines:true, complete: r => processCSV(r.data, r.meta.fields)});
@@ -812,7 +808,7 @@ function buildManualTable() {
   let body = '';
   PROVINCE_NAMES.forEach((p, i) => {
     const reg = PROV_REGION[p] || '—';
-    body += `<tr><td style="color:#475569;font-size:10px;">${i+1}</td><td style="color:#94a3b8;">${p}</td><td style="color:#64748b;font-size:11px;">${reg}</td>`;
+    body += `<tr><td class="dim-num">${i+1}</td><td style="color:var(--text-soft);">${p}</td><td class="muted-cell" style="font-size:11px;">${reg}</td>`;
     if (isN) {
       const pv = provinceProd[p] ?? '';
       const nv = provinceNeed[p] ?? '';
@@ -1122,6 +1118,11 @@ function featurePathD(feature, project) {
 
 function buildSVG(W, H, PAD, SCALE, project, minVal, maxVal) {
   const unit = $('#dataUnit').val(), label = $('#dataLabel').val() || 'Data';
+  const stroke = themeColor('--border-strong') || '#14213d';
+  const bg = themeColor('--surface') || '#ffffff';
+  const border = themeColor('--border') || '#e6dfce';
+  const text = themeColor('--text') || '#14213d';
+  const muted = themeColor('--muted') || '#6b6a5e';
   let paths = '';
   geoJsonData.features.forEach(f => {
     const name = getProvinceName(f), matched = matchProvince(name);
@@ -1129,23 +1130,23 @@ function buildSVG(W, H, PAD, SCALE, project, minVal, maxVal) {
     const fill = (val !== undefined && val !== null) ? getColorForValue(val, minVal, maxVal) : colorNoData;
     const op = (val !== undefined && val !== null) ? '0.9' : '0.25';
     const d = featurePathD(f, project); if (!d) return;
-    paths += `<path d="${d}" fill="${fill}" fill-opacity="${op}" stroke="#0c1a2e" stroke-width="0.8"/>\n`;
+    paths += `<path d="${d}" fill="${fill}" fill-opacity="${op}" stroke="${stroke}" stroke-width="0.8"/>\n`;
   });
   const svgBreaks = getBreaks(minVal, maxVal);
   const svgN = svgBreaks.length - 1;
   syncClassColors(svgN);
   const lx = PAD+10, ly = H-PAD-(svgN*22)-34;
-  let leg = `<rect x="${lx-6}" y="${ly-24}" width="220" height="${svgN*22+34}" rx="6" fill="#0c1a2e" fill-opacity="0.88" stroke="#1e3a5f" stroke-width="1"/>`;
-  leg += `<text x="${lx}" y="${ly-8}" font-family="Arial" font-size="11" fill="#94a3b8">${label}</text>`;
+  let leg = `<rect x="${lx-6}" y="${ly-24}" width="220" height="${svgN*22+34}" rx="10" fill="${bg}" fill-opacity="0.94" stroke="${border}" stroke-width="1"/>`;
+  leg += `<text x="${lx}" y="${ly-8}" font-family="Arial" font-size="11" font-weight="bold" fill="${muted}">${label}</text>`;
   for (let i = 0; i < svgN; i++) {
     const c = getClassColor(i, svgN);
     const lo = svgBreaks[i], hi = svgBreaks[i+1];
     const iy = ly+i*22;
     const rangeStr = fmtNum(lo)+(unit?' '+unit:'')+' – '+fmtNum(hi)+(unit?' '+unit:'');
     leg += `<rect x="${lx}" y="${iy}" width="15" height="15" rx="3" fill="${c}"/>`;
-    leg += `<text x="${lx+20}" y="${iy+11}" font-family="Arial" font-size="11" fill="#e2e8f0">${rangeStr}</text>`;
+    leg += `<text x="${lx+20}" y="${iy+11}" font-family="Arial" font-size="11" fill="${text}">${rangeStr}</text>`;
   }
-  const title = `<text x="${W/2}" y="${PAD+2}" text-anchor="middle" font-family="Arial" font-size="${13*SCALE}" font-weight="bold" fill="#e2e8f0">Peta ${label} · 38 Provinsi Indonesia</text>`;
+  const title = `<text x="${W/2}" y="${PAD+2}" text-anchor="middle" font-family="Arial" font-size="${13*SCALE}" font-weight="bold" fill="${text}">Peta ${label} · 38 Provinsi Indonesia</text>`;
   const svg = `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="transparent"/>${paths}${leg}${title}</svg>`;
   const blob = new Blob([svg], {type:'image/svg+xml;charset=utf-8'});
   dlFile(URL.createObjectURL(blob), 'peta-indonesia.svg');
@@ -1155,7 +1156,13 @@ function buildSVG(W, H, PAD, SCALE, project, minVal, maxVal) {
 function buildPNG(W, H, PAD, SCALE, project, minVal, maxVal) {
   const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#060d1a'; ctx.fillRect(0,0,W,H);
+  const bg = themeColor('--bg') || '#f5f2ec';
+  const surface = themeColor('--surface') || '#ffffff';
+  const border = themeColor('--border') || '#e6dfce';
+  const borderStrong = themeColor('--border-strong') || '#14213d';
+  const text = themeColor('--text') || '#14213d';
+  const muted = themeColor('--muted') || '#6b6a5e';
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
   geoJsonData.features.forEach(f => {
     const name = getProvinceName(f), matched = matchProvince(name);
     const val = matched ? getMapValue(matched) : undefined;
@@ -1164,17 +1171,18 @@ function buildPNG(W, H, PAD, SCALE, project, minVal, maxVal) {
     ctx.beginPath(); drawPNG(ctx, f, project);
     const [r,g,b] = hexToRgb(fill);
     ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`; ctx.fill();
-    ctx.strokeStyle = '#0c1a2e'; ctx.lineWidth = .8*SCALE; ctx.stroke();
+    ctx.strokeStyle = borderStrong; ctx.lineWidth = .8*SCALE; ctx.stroke();
   });
   const unit = $('#dataUnit').val(), label = $('#dataLabel').val() || 'Data';
   const pngBreaks = getBreaks(minVal, maxVal);
   const pngN = pngBreaks.length - 1;
   syncClassColors(pngN);
   const lx = PAD+10, ly = H-PAD-(pngN*28)-40;
-  ctx.fillStyle = 'rgba(12,26,46,0.88)';
-  rrect(ctx, lx-8, ly-28, 240*SCALE, pngN*28+42, 8); ctx.fill();
-  ctx.strokeStyle = '#1e3a5f'; ctx.lineWidth = 1; ctx.stroke();
-  ctx.font = `${11*SCALE}px Arial`; ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'left';
+  const [sr,sg,sb] = hexToRgb(surface);
+  ctx.fillStyle = `rgba(${sr},${sg},${sb},0.94)`;
+  rrect(ctx, lx-8, ly-28, 240*SCALE, pngN*28+42, 10); ctx.fill();
+  ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.stroke();
+  ctx.font = `bold ${11*SCALE}px Arial`; ctx.fillStyle = muted; ctx.textAlign = 'left';
   ctx.fillText(label, lx, ly-10);
   for (let i = 0; i < pngN; i++) {
     const c = getClassColor(i, pngN);
@@ -1182,10 +1190,10 @@ function buildPNG(W, H, PAD, SCALE, project, minVal, maxVal) {
     const iy = ly+i*28;
     const [r,g,b] = hexToRgb(c);
     ctx.fillStyle = `rgb(${r},${g},${b})`; rrect(ctx, lx, iy, 16*SCALE, 16*SCALE, 3); ctx.fill();
-    ctx.fillStyle = '#e2e8f0'; ctx.font = `${11*SCALE}px Arial`;
+    ctx.fillStyle = text; ctx.font = `${11*SCALE}px Arial`;
     ctx.fillText(fmtNum(lo)+(unit?' '+unit:'')+' - '+fmtNum(hi)+(unit?' '+unit:''), lx+22*SCALE, iy+12*SCALE);
   }
-  ctx.textAlign = 'center'; ctx.font = `bold ${13*SCALE}px Arial`; ctx.fillStyle = '#e2e8f0';
+  ctx.textAlign = 'center'; ctx.font = `bold ${13*SCALE}px Arial`; ctx.fillStyle = text;
   ctx.fillText('Peta '+(label||'Indonesia')+' · 38 Provinsi Indonesia', W/2, PAD+4);
   dlFile(canvas.toDataURL('image/png'), 'peta-indonesia.png');
   showToast('PNG diunduh!', 'success');
