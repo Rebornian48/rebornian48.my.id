@@ -6,19 +6,21 @@ Repo ini adalah **monorepo statis** — root = landing site, tiap subfolder = mi
 rebornian48/
 ├── index.html                 → https://rebornian48.my.id/
 ├── assets/
-│   ├── theme.css              # tokens shared
-│   ├── brand.css, brand.js    # brand-nav auto-inject
+│   ├── theme.css              # tokens shared (light + dark)
+│   ├── brand.css, brand.js    # brand-nav auto-inject + theme sync
+│   ├── miniapp-restyle.css    # shim untuk 11 miniapps PHP
 │   ├── waktukita.css, waktukita.js
 │   └── choropleth.js
-├── waktukita/
-│   └── index.html             → https://rebornian48.my.id/waktukita/
-├── choropleth/
-│   ├── index.html             → https://rebornian48.my.id/choropleth/
-│   └── styles.css
-└── (mini-app baru)/           → https://rebornian48.my.id/nama-app/
+├── waktukita/, choropleth/, geocalc/, basajawatools/, codevault/  # HTML apps
+├── support/, devkit/, calc/, asetku/, notepad/, paint/            # PHP apps
+├── music-instruments/, randomizer/, tuang-sadayana/               # PHP apps
+├── islamic/{index,imsakiyah,waktu-shalat}.php    # multi-page app
+└── calendar/{index,agecalc}.php                  # multi-page app
 ```
 
-Nambah app baru: bikin folder di root, isi HTML/CSS/JS, commit, push. Otomatis live di `/nama-app/`.
+Nambah app baru: bikin folder di root, isi HTML/CSS/JS/PHP, commit, push. Otomatis live di `/nama-app/`.
+
+**PHP support**: Hostinger shared hosting sudah include PHP 8. File `.php` di-execute otomatis. **Fatal error di include/require = page blank** — pastikan semua path exist sebelum push (lihat gotcha section di [README](README.md#php-miniapps--gotchas)).
 
 ---
 
@@ -75,10 +77,12 @@ Manual deploy kalau webhook gagal: hPanel Git panel → **Manage** → **Deploy 
 - **CDN eksternal** (Leaflet, Google Fonts, API cuaca/adzan) pakai HTTPS absolut — aman.
 - **HTTPS**: Hostinger kasih SSL gratis (Let's Encrypt) via hPanel → SSL. Auto-renew.
 - **`.gitignore`** exclude `.claude/`, `docs/`, `tailadmin-template/` biar gak ke-push (bukan kode produksi).
-- **Trailing slash**: Apache Hostinger otomatis serve `waktukita/index.html` saat URL `/waktukita/`. Kalau redirect gak jalan, tambah `.htaccess` di root:
+- **Trailing slash**: Apache Hostinger otomatis serve `waktukita/index.html` saat URL `/waktukita/`. Untuk folder yang cuma punya `index.php` (support, devkit, calc, dll), pastikan DirectoryIndex include `index.php`:
   ```apache
-  DirectoryIndex index.html
+  DirectoryIndex index.html index.php
   ```
+- **Common PHP gotcha**: kalau app blank di production tapi normal di localhost, biasanya `require_once` atau `include` reference file yang ga ada di repo (misal `assets/theme.php`). Cek error log via hPanel → Errors atau tambah `error_reporting(E_ALL); ini_set('display_errors', 1);` sementara.
+- **Cache-bust**: browser sering cache `.css`/`.js` agresif. Setelah update styling, bump query string di HTML: `<link href="styles.css?v=3">` supaya fetch ulang.
 
 ---
 

@@ -6,7 +6,6 @@
     <title>Rehat Sejenak</title>
 <link rel="stylesheet" href="/assets/brand.css">
 <script src="/assets/brand.js" data-app="rehat" defer></script>
-    <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/theme.php'; ?>
     <style>
         * {
             margin: 0;
