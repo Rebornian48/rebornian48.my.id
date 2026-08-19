@@ -6,6 +6,12 @@
   align-items: center;
   gap: 12px;
   padding: 8px 14px;
+  /* Full-width even inside a flex/grid parent that would otherwise
+     shrink us (e.g. rehat, agecalc body{display:flex;align-items:center}) */
+  width: 100%;
+  box-sizing: border-box;
+  align-self: stretch;
+  flex-shrink: 0;
   background: var(--r48-bar-bg, #0d1220);
   color: var(--r48-bar-fg, #eef2fb);
   border-bottom: 1px solid var(--r48-bar-border, rgba(255,255,255,.08));
