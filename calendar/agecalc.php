@@ -273,6 +273,10 @@
       <p class="eyebrow">⟡ Perhitungan Usia ⟡</p>
       <h1>This Is<br/><em>Your Life</em></h1>
       <p class="tagline">Abad · Dekade · Windu · Tahun · Bulan · Hari · Shio · Kalender Dunia</p>
+      <nav style="margin-top:18px;display:inline-flex;gap:6px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.1);border-radius:999px;padding:4px;">
+        <a href="index.php" style="padding:6px 16px;border-radius:999px;color:rgba(0,0,0,.55);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;font-family:inherit;">Kalender</a>
+        <span style="padding:6px 16px;border-radius:999px;background:var(--gold,#a8802a);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Kalkulator Usia</span>
+      </nav>
     </header>
 
     <div class="ornament"><span class="ornament-icon">✦</span></div>

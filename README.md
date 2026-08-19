@@ -88,8 +88,7 @@ Isi `theme.css`: variabel CSS `--bg`, `--bg-2`, `--surface`, `--surface-2`, `--t
 | support | `/support/` | Dukungan | Donation hub — Saweria, Trakteer, Karyakarsa, Sociabuzz, Tako, Nih Buat Jajan |
 | devkit | `/devkit/` | Utility | Hub tools ID — Cek NIK (parsing 16 digit) + GenderSense (deteksi gender dari nama) |
 | islamic | `/islamic/` | Islami | Al-Quran (EQuran.id) + Doa & Dzikir + Jadwal Shalat + Imsakiyah worldwide + Cari Kota multi-metode |
-| calendar | `/calendar/` | Kalender | Kalender Nusantara — Masehi × Hijriah × Cina × Jawa, pancawara, neptu, pranata mangsa |
-| agecalc | `/agecalc/` | Kalkulator | Kalkulator usia — abad, dekade, windu, shio, Maya Long Count |
+| calendar | `/calendar/` | Kalender | Kalender Nusantara (Masehi × Hijriah × Cina × Jawa, neptu, pranata mangsa) + Kalkulator Usia (shio, windu, Maya Long Count) via `/calendar/agecalc.php` |
 | calc | `/calc/` | Kalkulator | Kalkulator programmer (DEC/BIN/HEX/OCT) + scientific |
 | asetku | `/asetku/` | Finansial | Personal finance tracker — net worth, distribusi aset, import/export |
 | notepad | `/notepad/` | Produktivitas | LocalStorage editor — undo/redo, find/replace, autosave, export .TXT/.MD/.HTML |
