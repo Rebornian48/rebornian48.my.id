@@ -3,32 +3,41 @@
 Monorepo static site untuk `rebornian48.my.id` di Hostinger shared hosting.
 
 ```
-├── index.html          # landing rebornian48.my.id/
+├── index.html               # landing rebornian48.my.id/
 ├── assets/
-│   ├── theme.css       # DESIGN TOKENS SHARED (light + dark + view transition)
-│   ├── brand.css       # brand-nav (rebornian48 / app · Live · toggle · Semua Tools)
-│   ├── brand.js        # auto-inject brand-nav + sync theme lintas app
-│   ├── waktukita.css   # style app-specific waktukita
-│   ├── waktukita.js    # logic app-specific waktukita (jam, cuaca, adzan, peta)
-│   ├── choropleth.js   # logic app-specific choropleth (peta + parsing data)
-│   └── json/           # geojson besar (exclude dari git, upload manual ke server)
-├── waktukita/          # rebornian48.my.id/waktukita/
-│   └── index.html      # Jam · cuaca · adzan · peta lokasi
-├── choropleth/         # rebornian48.my.id/choropleth/
-│   ├── index.html      # Peta 38 provinsi + upload CSV/Excel
-│   └── styles.css      # style app-specific choropleth
-├── geocalc/            # rebornian48.my.id/geocalc/
-│   └── index.html      # Kalkulator geometri 2D & 3D
-├── basajawatools/      # rebornian48.my.id/basajawatools/
-│   └── index.html      # Ngalam · Dagadu · Aksara Jawa
-├── codevault/          # rebornian48.my.id/codevault/
-│   ├── index.html      # Snippet manager
-│   ├── api.php         # REST endpoint (Hostinger PHP)
-│   └── snippets_data.json
-├── support/            # rebornian48.my.id/support/
-│   └── index.php       # Donation hub — Saweria · Trakteer · dll
-├── DEPLOY.md           # panduan deploy Hostinger
-├── CHANGELOG.md        # riwayat rilis
+│   ├── theme.css            # DESIGN TOKENS SHARED (light + dark + view transition)
+│   ├── brand.css            # brand-nav (rebornian48 / app · Live · toggle · Semua Tools)
+│   ├── brand.js             # auto-inject brand-nav + sync theme lintas app
+│   ├── miniapp-restyle.css  # shim: font unify + legacy token aliases (untuk 11 miniapps PHP)
+│   ├── waktukita.css        # style app-specific waktukita
+│   ├── waktukita.js         # logic app-specific waktukita (jam, cuaca, adzan, peta)
+│   ├── choropleth.js        # logic app-specific choropleth (peta + parsing data)
+│   └── json/                # geojson besar (exclude dari git, upload manual ke server)
+├── waktukita/               # jam lokal · cuaca · adzan · peta
+├── choropleth/              # peta 38 provinsi · upload CSV/Excel
+│   ├── index.html
+│   └── styles.css
+├── geocalc/                 # kalkulator geometri 2D & 3D
+├── basajawatools/           # Ngalam · Dagadu · Aksara Jawa
+├── codevault/               # snippet manager + api.php
+├── support/index.php        # donation hub (Saweria, Trakteer, dll)
+├── devkit/index.php         # hub tools ID — Cek NIK + GenderSense
+├── islamic/                 # Al-Quran · Doa · Jadwal Shalat
+│   ├── index.php
+│   ├── imsakiyah.php        # multi-metode kiblat + puasa
+│   └── waktu-shalat.php     # 500+ kota worldwide
+├── calendar/                # Kalender Nusantara
+│   ├── index.php
+│   └── agecalc.php          # kalkulator usia (shio, windu, Maya Long Count)
+├── calc/index.php           # kalkulator programmer + scientific
+├── asetku/index.php         # personal finance tracker
+├── notepad/index.php        # LocalStorage editor
+├── paint/index.php          # Pixel Studio
+├── music-instruments/index.php  # 5 virtual instrument
+├── randomizer/index.php     # 10-in-1 game/tools suite
+├── tuang-sadayana/index.php # widget rehat sejenak (cangkir teh)
+├── DEPLOY.md                # panduan deploy Hostinger
+├── CHANGELOG.md             # riwayat rilis
 └── .gitignore
 ```
 
@@ -128,6 +137,15 @@ Lihat [DEPLOY.md](DEPLOY.md). Push ke `main` → Hostinger auto-pull.
 6. Tambah tile di landing `index.html`
 7. Update [CHANGELOG.md](CHANGELOG.md) — Unreleased → Added
 8. Buat PR, merge → auto live di `rebornian48.my.id/nama-app/`
+
+## PHP miniapps — gotchas
+
+Sebelas app dari `miniapps.zip` di-integrate as-is (styling asli dipertahankan) dengan brand-bar overlay via `/assets/brand.js`. Catatan penting:
+
+- **JANGAN pakai `require_once /assets/theme.php`** — file itu ga ada, PHP fatal error → page blank setelah brand-bar. Kalau app asalnya punya baris itu (misal `agecalc`, `tuang-sadayana`, `cek_nik`), hapus.
+- **`body { display: flex; align-items: center; }`** — bikin brand-bar shrink ke pill kecil. Sudah di-fix di `brand.css` v3 (width:100% + align-self:stretch).
+- **App yang dark-native** (randomizer, devkit, calc) — jangan force `body{background !important}` ke cream. Kartu + text mereka didesain untuk dark surface. Shim `miniapp-restyle.css` v2 sudah tidak force body paint.
+- **Sub-route pattern**: kalau 2 app punya domain sama, merge as `parent/child.php` dengan pill nav switcher (lihat `islamic/imsakiyah.php`, `islamic/waktu-shalat.php`, `calendar/agecalc.php`).
 
 ## Riwayat perubahan
 
