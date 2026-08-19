@@ -1,19 +1,25 @@
 /* ============================================
-   miniapp-restyle — phase 2 shim
-   Pulls per-app palettes toward waktukita tokens.
-   Load AFTER app's own <style> block so overrides win
-   without needing every rule flagged !important.
+   miniapp-restyle — phase 2 shim (v2, less aggressive)
+
+   Lessons from v1:
+   - Forcing body{background;color !important} broke dark-native apps
+     (randomizer, devkit, calc) — their cards + text were designed for
+     dark surface + light ink; cream bg + dark ink = invisible content.
+   - So v2 only touches what is safe to unify across all apps: FONTS
+     and TOKEN ALIASES. Each app keeps its own body paint.
+   - Apps that WERE designed light (or want the waktukita look) opt in
+     by removing their body background rule.
 
    Depends on: theme.css (--bg, --surface, --text, --accent, …)
-   Loads its own fonts (safe to duplicate if app already has them).
    ============================================ */
 
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* ============ 1. legacy-token aliases ============
-   Any --col-*, --gold, --warm, --brand, --paper, --cream token an
-   app still resolves points at waktukita's palette instead of the
-   old hard-coded hex.
+   Any --col-*, --gold, --warm, --brand, --paper, --cream token an app
+   still resolves points at waktukita's palette instead of the old
+   hard-coded hex. Zero visual change if the app doesn't reference the
+   alias; new/replaced tokens pick up waktukita colors.
 */
 :root {
   /* generic surface roles */
@@ -30,133 +36,33 @@
   --col-toggle-ic: var(--muted);
   --col-scrollbar: var(--border-strong);
 
-  /* devkit / randomizer / calc / paint */
-  --card: var(--surface);
-  --card2: var(--surface-2);
-  --border2: var(--border);
-  --sidebar: var(--surface);
-  --accent2: var(--warn);
-  --accent3: var(--good);
+  /* devkit / randomizer / calc / paint — kept as aliases only, no !important */
   --pink: var(--accent);
-  --red: var(--crit);
-  --green: var(--good);
   --danger: var(--crit);
-
-  /* calc */
-  --accent-hover: var(--accent);
-  --bg-btn: var(--surface-2);
-  --bg-btn-hover: var(--surface);
-  --bg-btn-active: var(--accent-soft);
-  --bg-op: var(--surface-2);
-  --bg-op-hover: var(--surface);
-  --bg-primary: var(--bg);
-  --bg-secondary: var(--bg-2);
-  --bg-sidebar: var(--surface);
-
-  /* paint */
-  --accent-dim: var(--accent-soft);
   --accent-glow: var(--accent);
-  --bg-dark: var(--bg);
-  --bg-panel: var(--surface);
-  --bg-surface: var(--surface-2);
-  --bg-hover: var(--surface-2);
-  --text-primary: var(--text);
-  --text-muted: var(--muted);
-
-  /* agecalc / notepad — parchment palette */
-  --paper: var(--surface);
-  --cream: var(--bg);
-  --ink: var(--text);
-  --line: var(--border);
-  --gold: var(--accent);
   --gold-light: var(--highlight);
   --olive: var(--good);
   --rust: var(--crit);
-  --shadow: var(--shadow);
-  --modal-bg: var(--surface);
-  --ctx-bg: var(--surface-2);
-
-  /* randomizer */
-  --surface2: var(--surface-2);
-
-  /* music-instruments — accent glow per instrument stays as-is */
 }
 
-/* ============ 2. baseline paint ============ */
-body {
-  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
-  background:
-    radial-gradient(1200px 500px at 90% -10%, var(--bg-2), transparent 60%),
-    radial-gradient(900px 400px at -10% 110%, var(--bg-2), transparent 60%),
-    var(--bg) !important;
-  color: var(--text) !important;
-  -webkit-font-smoothing: antialiased;
-  transition: background-color .5s ease, color .5s ease;
+/* ============ 2. safe font application ============
+   Font-family is safe to unify — glyph swap does not depend on color
+   contrast. Everything else (bg, color, layout) stays per-app.
+*/
+body, html {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
-
-/* mono for numbers/code — respect existing font-family on inputs */
 code, kbd, samp, pre, .mono, [class*="font-mono"] {
-  font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace !important;
+  font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
-/* Tailwind default gray backgrounds appearing in some apps → surface */
-.bg-gray-900, .bg-gray-800, .bg-slate-900, .bg-slate-800,
-.bg-zinc-900, .bg-neutral-900, .bg-stone-900 {
-  background-color: var(--surface) !important;
-}
-.bg-gray-100, .bg-gray-50, .bg-slate-50, .bg-slate-100 {
-  background-color: var(--surface-2) !important;
-}
-
-/* Custom Tailwind extends that show up in calendar/asetku */
-.bg-batik-200, .bg-batik-100, .bg-brand-600, .bg-brand-700, .bg-kraton-500 {
-  background-color: var(--accent) !important;
-  color: var(--accent-ink) !important;
-}
-.text-batik-200, .text-batik-100, .text-brand-500, .text-brand-600, .text-kraton-300 {
-  color: var(--accent) !important;
-}
-.text-gold, .text-gold2, .text-warm {
-  color: var(--accent) !important;
-}
-
-/* ============ 3. common controls ============ */
-button:not([class*="tab"]):not(.icon-btn):not([data-r48-theme]):not(.no-r48),
-.btn, .action-btn {
-  font-family: inherit;
-}
-
-input, textarea, select {
-  font-family: inherit;
-}
-
-/* scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--surface-2); }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; opacity: .4; }
-
-/* ============ 4. r48 brand-bar sits on top ============
-   Push page content clear of the injected bar (44px tall).
-   Apps that already have their own sticky top-nav lose the double-stack
-   because the brand-bar is z-index 9998 and page nav sits below.
+/* ============ 3. brand-bar clearance ============
+   r48 brand-bar is sticky at top (z-index 9998). App content sits
+   below it naturally — this just ensures no app pushes above it.
 */
-body > .r48-bar ~ * { position: relative; }
+body > .r48-bar { z-index: 9999; }
 
-/* ============ 5. dark-mode neutralisation for apps painted dark ============
-   Some apps (islamic, ismakiyah, clock2) hard-code deep-blue bodies. When
-   the user switches to light theme via brand-bar we want the shell to
-   follow. Selectors below undo hard-coded dark backgrounds only in light
-   mode — dark mode keeps its intended vibe.
-*/
-:root[data-theme="light"] body[style*="background"],
-:root[data-theme="light"] body[class*="bg-"] {
-  background:
-    radial-gradient(1200px 500px at 90% -10%, var(--bg-2), transparent 60%),
-    radial-gradient(900px 400px at -10% 110%, var(--bg-2), transparent 60%),
-    var(--bg) !important;
-}
-
-/* ============ 6. reduced motion ============ */
+/* ============ 4. reduced motion ============ */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }

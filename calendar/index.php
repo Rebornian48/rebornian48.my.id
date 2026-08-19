@@ -154,6 +154,10 @@
   <h1 class="font-display text-2xl md:text-3xl text-batik-200 tracking-widest mb-1">Kalender Nusantara</h1>
   <p class="text-kraton-300 text-sm tracking-widest uppercase font-sans font-light">Masehi &nbsp;·&nbsp; Hijriah &nbsp;·&nbsp; Cina &nbsp;·&nbsp; Jawa</p>
   <div class="header-line mt-3 max-w-md mx-auto"></div>
+  <nav style="margin-top:14px;display:inline-flex;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:4px;">
+    <span style="padding:6px 16px;border-radius:999px;background:rgba(200,153,62,.2);color:#e2b96a;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Kalender</span>
+    <a href="agecalc.php" style="padding:6px 16px;border-radius:999px;color:rgba(255,255,255,.6);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#e2b96a'" onmouseout="this.style.color='rgba(255,255,255,.6)'">Kalkulator Usia</a>
+  </nav>
 </header>
 
 <main class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-5">
