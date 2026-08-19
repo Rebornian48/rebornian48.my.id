@@ -353,6 +353,9 @@ body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);dis
   backdrop-filter:blur(4px);
 }
 </style>
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/miniapp-restyle.css">
+<script>(function(){var s=localStorage.getItem("rebornian.theme");var d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"));})();</script>
 </head>
 <body>
 

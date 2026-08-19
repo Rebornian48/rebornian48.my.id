@@ -182,6 +182,9 @@
     }
     .eyebrow-line::before,.eyebrow-line::after { content:''; display:block; width:36px; height:1px; background:var(--teal); opacity:.5; }
   </style>
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/miniapp-restyle.css">
+<script>(function(){var s=localStorage.getItem("rebornian.theme");var d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"));})();</script>
 </head>
 <body>
 

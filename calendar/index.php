@@ -143,6 +143,9 @@
     .cn-mini-val{font-size:14px;font-weight:700;color:#fef2f2;font-family:'Noto Serif',serif;}
     .cn-mini-sub{font-size:10px;color:#fca5a5;margin-top:1px;}
   </style>
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/miniapp-restyle.css">
+<script>(function(){var s=localStorage.getItem("rebornian.theme");var d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"));})();</script>
 </head>
 
 <body class="font-sans text-gray-100 py-6 px-4">

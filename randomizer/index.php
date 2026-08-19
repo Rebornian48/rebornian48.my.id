@@ -575,6 +575,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .quote-actions{flex-direction:column;}
 }
 </style>
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/miniapp-restyle.css">
+<script>(function(){var s=localStorage.getItem("rebornian.theme");var d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"));})();</script>
 </head>
 <body>
 

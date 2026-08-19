@@ -492,6 +492,9 @@
     .theme-toggle { padding: 5px 10px; font-size: 0.6rem; }
   }
 </style>
+<link rel="stylesheet" href="/assets/theme.css">
+<link rel="stylesheet" href="/assets/miniapp-restyle.css">
+<script>(function(){var s=localStorage.getItem("rebornian.theme");var d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",s||(d?"dark":"light"));})();</script>
 </head>
 <body>
 <div class="app-wrap">
@@ -929,9 +932,7 @@ $(function(){
   $('#dlTxtBtn').click(() => download(ta.value, filename('txt'), 'text/plain'));
   $('#dlMdBtn').click(() => download(ta.value, filename('md'), 'text/markdown'));
   $('#dlHtmlBtn').click(() => {
-    const html = `<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>${escHtml(activeTab)}</title>
-<link rel="stylesheet" href="/assets/brand.css">
-<script src="/assets/brand.js" data-app="notepad" defer></script><style>body{font-family:monospace;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;white-space:pre-wrap;}</style></head>\n<body>${escHtml(ta.value)}</body>\n</html>`;
+    const html = `<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>${escHtml(activeTab)}</title><style>body{font-family:monospace;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.7;white-space:pre-wrap;}</style></head>\n<body>${escHtml(ta.value)}</body>\n</html>`;
     download(html, filename('html'), 'text/html');
   });
 
