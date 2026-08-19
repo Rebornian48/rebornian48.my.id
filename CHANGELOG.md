@@ -4,7 +4,27 @@ Format ikut [Keep a Changelog](https://keepachangelog.com/id/1.1.0/). Versi tanp
 
 ## [Unreleased]
 
-_Belum ada perubahan._
+### Added
+- **11 mini-app baru** dari `miniapps.zip` diintegrasikan dengan brand-bar shared (`/assets/brand.js`) supaya cross-app theme toggle sync ke `rebornian.theme`. Konten & styling asli dipertahankan (phase 1); restyle penuh ke waktukita design system menyusul per app.
+  - `devkit` — hub tools ID (Cek NIK + GenderSense sudah include, sekaligus menggantikan `cek_nik` + `cek_gender` yang di-skip dari zip)
+  - `islamic` — Al-Quran (EQuran.id) + Doa & Dzikir + Jadwal Shalat, plus sub-routes `islamic/imsakiyah.php` (dari `ismakiyah`) dan `islamic/waktu-shalat.php` (dari `clock2` — multi-metode kiblat MWL/Gulf/Egyptian + cari 500+ kota worldwide)
+  - `calendar` — Kalender Nusantara (Masehi × Hijriah × Cina × Jawa, pancawara, neptu, pranata mangsa)
+  - `agecalc` — Kalkulator usia (abad, dekade, windu, shio, Maya Long Count)
+  - `calc` — Kalkulator programmer (DEC/BIN/HEX/OCT) + scientific
+  - `asetku` — Personal finance tracker (net worth, distribusi, import/export)
+  - `notepad` — LocalStorage editor (undo/redo, find/replace, autosave, export .TXT/.MD/.HTML)
+  - `paint` — Pixel Studio (brush, layer, zoom, palette)
+  - `music-instruments` — 5 virtual instrument (piano, guitar, drum, violin, trumpet)
+  - `randomizer` — 10-in-1 game/tools suite (Coin Flip, Dice, Random Number, Password, Cards, Seat Picker, dll)
+  - `tuang-sadayana` — Widget rehat sejenak (cangkir teh + quote)
+- **landing**: 11 tile baru di tools grid.
+
+### Skipped (redundan)
+- `clock` (jam analog+digital sederhana) — sudah tercakup di `waktukita` (jam lokal) dan `islamic/waktu-shalat` (jam analog + shalat)
+- `year_progress` — sudah ada di `waktukita` (section Year Progress penuh) dan `islamic/waktu-shalat`
+- `cek_gender` (GenderSense standalone) — sudah include di `devkit`
+- `cek_nik` (Cek NIK standalone) — sudah include di `devkit`
+- `ismakiyah` (standalone) & `clock2` (standalone) — di-merge sebagai sub-route di `/islamic/` supaya semua urusan Islami satu pintu
 
 ## 2026-08-19
 
