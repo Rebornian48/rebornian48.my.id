@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
   <script>
     (function(){
       const saved = localStorage.getItem('rebornian.theme');
@@ -216,6 +217,9 @@
     }
     footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
     footer a:hover { text-decoration: underline; }
+    .footer-social { display: inline-flex; align-items: center; gap: 14px; font-size: 16px; }
+    .footer-social a { display: inline-flex; align-items: center; justify-content: center; color: var(--muted); transition: color .15s, transform .15s; }
+    .footer-social a:hover { color: var(--accent); transform: translateY(-2px); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -253,16 +257,10 @@
   </section>
 
   <div class="tools">
-    <a class="tool" href="/waktukita/">
-      <span class="tool-tag">Utility</span>
-      <b>waktukita</b>
-      <em>Jam lokal · cuaca real-time · jadwal adzan Kemenag RI · peta lokasi Leaflet.</em>
-      <span>Buka →</span>
-    </a>
-    <a class="tool" href="/choropleth/">
-      <span class="tool-tag">Data Viz</span>
-      <b>choropleth</b>
-      <em>Peta 38 provinsi Indonesia · upload CSV/Excel · neraca produksi · ekspor SVG/PNG.</em>
+    <a class="tool" href="/asetku/">
+      <span class="tool-tag">Finansial</span>
+      <b>asetku</b>
+      <em>Personal finance tracker — net worth, distribusi aset, catatan per aset, import/export data.</em>
       <span>Buka →</span>
     </a>
     <a class="tool" href="/basajawatools/">
@@ -271,34 +269,10 @@
       <em>Konverter Ngoko ↔ Krama · Boso Walikan Malang & Dagadu Jogja · transliterasi aksara Jawa.</em>
       <span>Buka →</span>
     </a>
-    <a class="tool" href="/codevault/">
-      <span class="tool-tag">Dev</span>
-      <b>codevault</b>
-      <em>Snippet manager — simpan potongan kode, filter per bahasa/tag, tersimpan di server (PHP API).</em>
-      <span>Buka →</span>
-    </a>
-    <a class="tool" href="/geocalc/">
+    <a class="tool" href="/calc/">
       <span class="tool-tag">Kalkulator</span>
-      <b>geocalc</b>
-      <em>Kalkulator geometri 2D & 3D — luas, keliling, volume · rumus + preview SVG interaktif.</em>
-      <span>Buka →</span>
-    </a>
-    <a class="tool" href="/support/">
-      <span class="tool-tag">Dukungan</span>
-      <b>support</b>
-      <em>Halaman donasi — Saweria, Trakteer, Karyakarsa, Sociabuzz, Tako, Nih Buat Jajan.</em>
-      <span>Buka →</span>
-    </a>
-    <a class="tool" href="/devkit/">
-      <span class="tool-tag">Utility</span>
-      <b>devkit</b>
-      <em>Hub tools ID — Cek NIK (parsing 16 digit) + GenderSense (deteksi gender dari nama).</em>
-      <span>Buka →</span>
-    </a>
-    <a class="tool" href="/islamic/">
-      <span class="tool-tag">Islami</span>
-      <b>islamic</b>
-      <em>Al-Quran (EQuran.id) · Doa & Dzikir · Jadwal Shalat · Imsakiyah worldwide · cari kota (multi-metode kiblat).</em>
+      <b>calc</b>
+      <em>Kalkulator programmer (DEC/BIN/HEX/OCT) + scientific (sin/cos/log/x²/x³/∛/abs).</em>
       <span>Buka →</span>
     </a>
     <a class="tool" href="/calendar/">
@@ -307,16 +281,40 @@
       <em>Kalender Nusantara + Kalkulator Usia — Masehi × Hijriah × Cina × Jawa · pancawara · neptu · pranata mangsa · shio · Maya Long Count.</em>
       <span>Buka →</span>
     </a>
-    <a class="tool" href="/calc/">
-      <span class="tool-tag">Kalkulator</span>
-      <b>calc</b>
-      <em>Kalkulator programmer (DEC/BIN/HEX/OCT) + scientific (sin/cos/log/x²/x³/∛/abs).</em>
+    <a class="tool" href="/choropleth/">
+      <span class="tool-tag">Data Viz</span>
+      <b>choropleth</b>
+      <em>Peta 38 provinsi Indonesia · upload CSV/Excel · neraca produksi · ekspor SVG/PNG.</em>
       <span>Buka →</span>
     </a>
-    <a class="tool" href="/asetku/">
-      <span class="tool-tag">Finansial</span>
-      <b>asetku</b>
-      <em>Personal finance tracker — net worth, distribusi aset, catatan per aset, import/export data.</em>
+    <a class="tool" href="/codevault/">
+      <span class="tool-tag">Dev</span>
+      <b>codevault</b>
+      <em>Snippet manager — simpan potongan kode, filter per bahasa/tag, tersimpan di server (PHP API).</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/devkit/">
+      <span class="tool-tag">Utility</span>
+      <b>devkit</b>
+      <em>Hub tools ID — Cek NIK (parsing 16 digit) + GenderSense (deteksi gender dari nama).</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/geocalc/">
+      <span class="tool-tag">Kalkulator</span>
+      <b>geocalc</b>
+      <em>Kalkulator geometri 2D & 3D — luas, keliling, volume · rumus + preview SVG interaktif.</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/islamic/">
+      <span class="tool-tag">Islami</span>
+      <b>islamic</b>
+      <em>Al-Quran (EQuran.id) · Doa & Dzikir · Jadwal Shalat · Imsakiyah worldwide · cari kota (multi-metode kiblat).</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/music-instruments/">
+      <span class="tool-tag">Musik</span>
+      <b>music</b>
+      <em>Virtual instrument suite — piano · guitar · drum · violin · trumpet (keyboard atau klik tuts).</em>
       <span>Buka →</span>
     </a>
     <a class="tool" href="/notepad/">
@@ -331,12 +329,6 @@
       <em>Pixel Studio — brush, layer, zoom, palette, color picker untuk pixel art di browser.</em>
       <span>Buka →</span>
     </a>
-    <a class="tool" href="/music-instruments/">
-      <span class="tool-tag">Musik</span>
-      <b>music</b>
-      <em>Virtual instrument suite — piano · guitar · drum · violin · trumpet (keyboard atau klik tuts).</em>
-      <span>Buka →</span>
-    </a>
     <a class="tool" href="/randomizer/">
       <span class="tool-tag">Game</span>
       <b>randomizer</b>
@@ -349,11 +341,28 @@
       <em>Widget rehat sejenak — animasi cangkir teh + quote inspiratif, buat break singkat.</em>
       <span>Buka →</span>
     </a>
+    <a class="tool" href="/waktukita/">
+      <span class="tool-tag">Utility</span>
+      <b>waktukita</b>
+      <em>Jam lokal · cuaca real-time · jadwal adzan Kemenag RI · peta lokasi Leaflet.</em>
+      <span>Buka →</span>
+    </a>
+    <a class="tool" href="/support/">
+      <span class="tool-tag">Dukungan</span>
+      <b>support</b>
+      <em>Halaman donasi — Saweria, Trakteer, Karyakarsa, Sociabuzz, Tako, Nih Buat Jajan.</em>
+      <span>Buka →</span>
+    </a>
   </div>
 
   <footer>
-    <div>© <span id="y"></span> rebornian48.my.id · dibangun dengan HTML/CSS/JS statis</div>
-    <div><a href="https://github.com/Rebornian48/rebornian48.my.id" target="_blank" rel="noopener">Kode sumber</a></div>
+    <div>© <span id="y"></span> rebornian48.my.id</div>
+    <div class="footer-social">
+      <a href="https://github.com/Rebornian48/rebornian48.my.id" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+      <a href="https://instagram.com/rebornian48" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://twitter.com/rebornian48" target="_blank" rel="noopener" aria-label="Twitter" title="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+      <a href="https://www.threads.net/@rebornian48" target="_blank" rel="noopener" aria-label="Threads" title="Threads"><i class="fa-brands fa-threads"></i></a>
+    </div>
   </footer>
 
   <script>
